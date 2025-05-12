@@ -44,7 +44,7 @@ function App({ navigate }) {
     }, []);
 
     const connectToHGR = () => {
-        const ws = new WebSocket("ws://localhost:8765");
+        const ws = new WebSocket("ws://localhost:8000");
         
         ws.onopen = () => {
             console.log("Connected to HGR WebSocket server");
