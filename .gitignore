@@ -1,0 +1,43 @@
+# === GLOBAL ===
+# macOS system files
+.DS_Store
+
+# Python virtual environment
+backend/venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Environment files
+*.env
+
+# === NODE / FRONTEND ===
+# Node modules
+frontend/node_modules/
+
+# Production build
+frontend/dist/
+frontend/build/
+
+# Logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Testing
+frontend/coverage/
+frontend/.eslintcache
+
+# === BACKEND ===
+# SQLite or other DB files if any
+*.db
+*.sqlite3
+
+# Pytest cache
+backend/.pytest_cache/
+backend/.mypy_cache/
+
+# === VS Code ===
+.vscode/
