@@ -1,0 +1,240 @@
+.game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #e0f7fa;
+  padding: 20px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+h1 {
+  color: #00796b;
+  margin-bottom: 30px;
+  text-align: center;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.path-grid {
+  position: relative;
+  width: 500px;
+  height: 300px;
+  margin: 20px auto;
+  background-color: #b2ebf2;
+  border-radius: 15px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.leaf {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  transition: all 0.3s ease;
+}
+
+.frog {
+  position: absolute;
+  font-size: 40px;
+  z-index: 10;
+  animation: bounce 0.8s infinite alternate;
+}
+
+.flag {
+  position: absolute;
+  font-size: 32px;
+  z-index: 9;
+  animation: wave 1s infinite alternate;
+}
+
+.input-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.instruction {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.instruction p {
+  margin: 5px 0;
+  font-size: 1.2rem;
+  color: #00695c;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.gesture-button {
+  padding: 15px 25px;
+  background-color: #26a69a;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.gesture-button:hover {
+  background-color: #00897b;
+  transform: translateY(-2px);
+}
+
+.gesture-button:active {
+  transform: translateY(1px);
+}
+
+.manual-input {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+input {
+  padding: 12px;
+  border: 2px solid #b2dfdb;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  flex: 1;
+  outline: none;
+  transition: border 0.3s;
+}
+
+input:focus {
+  border-color: #26a69a;
+}
+
+.invalid-input {
+  border-color: #f44336;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #00897b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background-color: #00796b;
+}
+
+.error-msg {
+  margin-top: 15px;
+  color: #f44336;
+  font-size: 1.1rem;
+  text-align: center;
+  background-color: rgba(244, 67, 54, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.detection-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.video-display {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  border-radius: 15px;
+  border: 5px solid #26a69a;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  margin-bottom: 15px;
+}
+
+.countdown-display {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.countdown-display p {
+  font-size: 1.4rem;
+  color: #00695c;
+  margin: 5px 0;
+}
+
+.finger-count {
+  font-size: 1.2rem;
+  color: #00897b;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes wave {
+  from {
+    transform: rotate(-5deg);
+  }
+  to {
+    transform: rotate(5deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .path-grid {
+    width: 100%;
+    max-width: 400px;
+    height: 240px;
+  }
+  
+  .leaf {
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+  }
+  
+  .frog, .flag {
+    font-size: 32px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+}
