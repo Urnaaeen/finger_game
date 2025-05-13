@@ -1,219 +1,378 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import './GamePage.css';
 
-const path = [
-  { x: 0, y: 0 },
-  { x: 1, y: 0 },
-  { x: 2, y: 0 },
-  { x: 2, y: 1 },
-  { x: 2, y: 2 },
-  { x: 3, y: 2 },
-  { x: 4, y: 2 },
-  { x: 5, y: 2 },
-  { x: 5, y: 1 },
-  { x: 5, y: 0 },
-];
-
-function FrogGame() {
-  const [position, setPosition] = useState(0);
-  const [input, setInput] = useState('');
-  const [error, setError] = useState('');
-  const [fingerCount, setFingerCount] = useState({ right: 0, left: 0 });
-  const [countdown, setCountdown] = useState(null);
-  const [isDetecting, setIsDetecting] = useState(false);
+function App() {
   const navigate = useNavigate();
+  const totalLevels = 5;
+
+  const [randomExpression, setRandomExpression] = useState([]); // ✅
+  const [correctAnswer, setCorrectAnswer] = useState(0);         // ✅
+  const [userAnswer, setUserAnswer] = useState("");
+  const [result, setResult] = useState("");
+  const [level, setLevel] = useState(0);
+  const [canRetry, setCanRetry] = useState(false);
+  const [gameWon, setGameWon] = useState(false);
+  const lastValidFingerCountRef = useRef(null);
+  const gridRows = 10;
+  const gridCols = 20;
+  const leaf = "🌿";
+  const [steps, setSteps] = useState([]);
+  const [frogPosition, setFrogPosition] = useState({ x: 0, y: 0 });
+
+
+  const generateChallenge = () => {
+    const directions = ["right", "down", "right", "up"];
+    const generatedSteps = Array.from({ length: 4 }, () => Math.floor(Math.random() * 5) + 1);
+    let pathMap = Array.from({ length: gridRows }, () => Array(gridCols).fill(""));
+
+    let x = 0, y = 0;
+    pathMap[0][0] = "🐸";
+
+    for (let i = 0; i < generatedSteps.length; i++) {
+      const step = generatedSteps[i];
+      for (let j = 0; j < step; j++) {
+        switch (directions[i]) {
+          case "right": x++; break;
+          case "down": y++; break;
+          case "up": y--; break;
+        }
+
+        // Шалгах хэсэг: x болон y-ийн хязгаарыг шалгах
+        if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
+          pathMap[y][x] = leaf;
+        }
+      }
+    }
+
+    // Эцсийн байрлалд улаан туг тавина
+    if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
+      pathMap[y][x] = "🚩";
+    }
+
+    setSteps(generatedSteps);
+    setRandomExpression(pathMap);
+    setLevel(0);
+    setUserAnswer("");
+    setResult("");
+    setCanRetry(false);
+    lastValidFingerCountRef.current = null;
+  };
+
+
   const videoRef = useRef(null);
-  const timerRef = useRef(null);
+  const ws = useRef(null);
+  const [fingerCount, setFingerCount] = useState(null);
 
   useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        videoRef.current.srcObject = stream;
+      } catch (err) {
+        console.error("🎥 Камер асаахад алдаа:", err);
       }
+    };
+
+    startCamera();
+
+    ws.current = new WebSocket("ws://localhost:8765");
+
+    ws.current.onopen = () => {
+      console.log("✅ WebSocket холбогдлоо");
+    };
+
+    ws.current.onerror = (err) => {
+      console.error("❌ WebSocket алдаа:", err);
+    };
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.fingers !== undefined) {
+        setFingerCount(data.fingers);
+        if (data.fingers !== 0) {
+          lastValidFingerCountRef.current = data.fingers;
+        }
+      }
+    };
+
+    const interval = setInterval(() => {
+      if (
+        videoRef.current &&
+        ws.current &&
+        ws.current.readyState === WebSocket.OPEN &&
+        videoRef.current.videoWidth > 0 &&
+        videoRef.current.videoHeight > 0
+      ) {
+        const canvas = document.createElement("canvas");
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const image = canvas.toDataURL("image/jpeg");
+        ws.current.send(JSON.stringify({ image }));
+      }
+    }, 300);
+
+    return () => {
+      clearInterval(interval);
+      if (ws.current) ws.current.close();
     };
   }, []);
 
-  const calculateExpectedMoves = () => {
-    const current = path[position];
-    const next = path[position + 1];
-    let direction = null;
-
-    if (next.x > current.x) direction = 'right';
-    else if (next.x < current.x) direction = 'left';
-    else if (next.y > current.y) direction = 'down';
-    else if (next.y < current.y) direction = 'up';
-
-    let count = 0;
-    for (let i = position + 1; i < path.length; i++) {
-      const from = path[i - 1];
-      const to = path[i];
-
-      const isSameDirection =
-        (direction === 'right' && to.x === from.x + 1 && to.y === from.y) ||
-        (direction === 'left' && to.x === from.x - 1 && to.y === from.y) ||
-        (direction === 'down' && to.y === from.y + 1 && to.x === from.x) ||
-        (direction === 'up' && to.y === from.y - 1 && to.x === from.x);
-
-      if (isSameDirection) {
-        count++;
-      } else {
-        break;
-      }
+  useEffect(() => {
+    if (
+      fingerCount === 0 &&
+      lastValidFingerCountRef.current !== null &&
+      !gameWon
+    ) {
+      handleCheckWithValue(lastValidFingerCountRef.current);
     }
-    
-    return count;
+  }, [fingerCount]);
+
+  useEffect(() => {
+    generateChallenge();
+  }, []);
+
+  const handleCheck = () => {
+    const value = userAnswer !== "" ? userAnswer : (fingerCount > 0 ? fingerCount : lastValidFingerCountRef.current);
+    handleCheckWithValue(value);
   };
-  const startDetection = () => {
-    setIsDetecting(true);
-    setCountdown(5);
-  
-    const ws = new WebSocket('ws://localhost:8000/ws/finger_count');
-    
-    ws.onopen = () => {
-      console.log('WebSocket connection established');
-    };
-    
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setFingerCount({
-        right: data.right_hand,
-        left: data.left_hand
-      });
-    };
-    
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-      setError('Connection error. Please try again.');
-      setIsDetecting(false);
-    };
-    
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-    
-    const countdownInterval = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          ws.close();
-          handleGestureSubmit();
-          return null;
+
+  const handleCheckWithValue = (value) => {
+    const answerToCheck = parseInt(value);
+    if (answerToCheck === steps[level]) {
+      const nextLevel = level + 1;
+      setLevel(nextLevel);
+      setResult("🎉 Зөв байна!");
+
+      // 🐸 Мэлхийг дараагийн байрлалд шилжүүлнэ
+      let { x, y } = frogPosition;
+      const direction = ["right", "down", "right", "up"][level];
+      const stepCount = steps[level];
+
+      // Хуучин мэлхийг цэвэрлэнэ
+      const newMap = randomExpression.map(row => row.slice());
+      newMap[y][x] = leaf;
+
+      for (let i = 0; i < stepCount; i++) {
+        switch (direction) {
+          case "right": x++; break;
+          case "down": y++; break;
+          case "up": y--; break;
         }
-        return prev - 1;
-      });
-    }, 1000);
-    
-    return () => {
-      clearInterval(countdownInterval);
-      ws.close();
-    };
-  };
-  const handleGestureSubmit = () => {
-    const totalFingers = fingerCount.right + fingerCount.left;
-    setInput(totalFingers.toString());
-    setIsDetecting(false);
-    
-    if (totalFingers > 0) {
-      timerRef.current = setTimeout(() => {
-        handleMove(totalFingers);
-      }, 1000);
-    }
-  };
 
-  const handleMove = (steps = null) => {
-    const moveSteps = steps !== null ? steps : parseInt(input);
-    
-    if (isNaN(moveSteps) || moveSteps < 1) {
-      setError('Please show a valid number of fingers');
-      return;
-    }
+        // Шалгах хэсэг: x болон y-ийн хязгаарыг шалгах
+        if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
+          // Хэтэрсэн байрлалд болохгүй
+          if (newMap[y][x] === leaf || newMap[y][x] === "🚩") {
+            newMap[y][x] = "🐸";
+          }
+        } else {
+          break; // Гадагшилсан тохиолдолд хөдөлгөөнийг зогсоох
+        }
+      }
 
-    const expectedMoves = calculateExpectedMoves();
-    
-    if (position + moveSteps >= path.length) {
-      setError("That's too far!");
-      return;
-    }
+      setRandomExpression(newMap);
+      setFrogPosition({ x, y });
 
-    if (moveSteps === expectedMoves) {
-      setPosition(position + moveSteps);
-      setInput('');
-      setError('');
-      
-      // const audio = new Audio('/sounds/correct.mp3');
-      // audio.play();
-      
-      if (position + moveSteps === path.length - 1) {
-        setTimeout(() => navigate('/success'), 800);
+      if (nextLevel === steps.length) {
+        setGameWon(true);
+      } else {
+        setTimeout(() => {
+          setResult("");
+          setUserAnswer("");
+        }, 1000);
       }
     } else {
-      setError(`sad`);
-      
-      // const audio = new Audio('/sounds/wrong.mp3');
-      // audio.play();
+      setResult("😅 Буруу байна. Дахин оролдоорой!");
+      setCanRetry(true);
     }
   };
 
+
+  const progressWidth = `${(level / totalLevels) * 100}%`;
+
+  useEffect(() => {
+    if (gameWon) {
+      const timeout = setTimeout(() => {
+        navigate('/page4');
+      }, 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameWon, navigate]);
+
   return (
-    <div className="game-container">
-      
-      <div className="path-grid">
-        {path.map((p, idx) => (
+    <>
+      <style>
+        {`
+          @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+          }
+        `}
+      </style>
+
+      <div style={{
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        width: "80%",
+        margin: "0 auto",
+        gap: "20px",
+        padding: "20px",
+        borderRadius: "15px",
+      }}>
+        <div
+          style={{
+            background: "#f3d4f8",
+            height: "50px",
+            width: "80%",
+            margin: "20px auto",
+            borderRadius: "20px",
+            overflow: "hidden",
+            flex: 9,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "10px",
+          }}
+        >
           <div
-            key={idx}
-            className="leaf"
             style={{
-              left: `${p.x * 80}px`,
-              top: `${p.y * 80}px`,
+              background: "#d48df8",
+              height: "100%",
+              width: progressWidth,
+              transition: "width 0.3s",
+            }}
+          />
+        </div>
+        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+          <button
+            onClick={() => navigate('/page1/pause')}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: '#eee',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+              cursor: 'pointer'
             }}
           >
-            🍀
-            {position === idx && <div className="frog">🐸</div>}
-            {idx === path.length - 1 && <div className="flag">🚩</div>}
-          </div>
-        ))}
+            <span style={{ display: 'flex', gap: '3px' }}>
+              <div style={{ width: '4px', height: '16px', backgroundColor: '#333' }} />
+              <div style={{ width: '4px', height: '16px', backgroundColor: '#333' }} />
+            </span>
+          </button>
+        </div>
       </div>
 
-      {isDetecting ? (
-        <div className="detection-container">
-          <video 
+      <div style={{
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        width: "80%",
+        margin: "0 auto",
+        gap: "20px",
+        backgroundColor: "#f9f1ff",
+        padding: "20px",
+        borderRadius: "15px",
+      }}>
+        <div style={{
+          flex: 7,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          fontSize: "200px",
+          fontWeight: "bold",
+          color: "#9C27B0",
+          textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
+        }}>
+          {Array.isArray(randomExpression) && (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${gridCols}, 20px)`,
+              gridTemplateRows: `repeat(${gridRows}, 20px)`,
+              gap: "1px",
+              justifyContent: "center",
+              margin: "20px auto",
+            }}>
+              {randomExpression.flat().map((cell, index) => (
+                <div key={index} style={{
+                  width: "20px",
+                  height: "20px",
+                  textAlign: "center",
+                  fontSize: "16px",
+                }}>
+                  {cell}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div style={{ flex: 3, textAlign: "center" }}>
+          <video
             ref={videoRef}
-            className="video-display"
             autoPlay
+            width="640"
+            height="480"
+            style={{ transform: "scaleX(-1)" }}
           />
-          <div className="countdown-display">
-            <p>Show {calculateExpectedMoves()} finger{calculateExpectedMoves() !== 1 ? 's' : ''} in {countdown} seconds</p>
-            <div className="finger-count">
-              Right hand: {fingerCount.right} | Left hand: {fingerCount.left}
-            </div>
+          <h3 style={{ marginTop: "20px", fontSize: "24px" }}>
+            Танигдсан хурууны тоо:{" "}
+            <span style={{ color: "blue" }}>
+              {fingerCount !== null
+                ? fingerCount
+                : lastValidFingerCountRef.current !== null
+                  ? lastValidFingerCountRef.current
+                  : "..."}
+            </span>
+          </h3>
+
+          <input
+            type="number"
+            placeholder="Хэдэн амьтан байна?"
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            style={{
+              padding: "10px",
+              fontSize: "18px",
+              borderRadius: "10px",
+              border: "1px solid #ccc",
+              width: "100%",
+              boxSizing: "border-box",
+            }}
+          />
+
+          <button
+            onClick={handleCheck}
+            style={{
+              marginTop: "10px",
+              padding: "10px 20px",
+              fontSize: "18px",
+              borderRadius: "10px",
+              border: "none",
+              backgroundColor: "#eecbff",
+              cursor: "pointer",
+              width: "100%",
+            }}
+            disabled={gameWon}
+          >
+            Шалгах
+          </button>
+
+          <div style={{ marginTop: "10px", fontSize: "20px", color: result.includes("Зөв") ? "green" : "red" }}>
+            {result}
           </div>
         </div>
-      ) : (
-        <div className="input-controls">
-          
-          <div className="button-group">
-            <button className="gesture-button" onClick={startDetection}>
-              Camera
-            </button>
-            
-            <div className="manual-input">
-              <input
-                type="number"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="..."
-                className={error ? 'invalid-input' : ''}
-              />
-              <button onClick={() => handleMove()}>Go</button>
-            </div>
-          </div>
-          
-          {error && <div className="error-msg">{error}</div>}
-        </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 }
 
-export default FrogGame;
+export default App;
