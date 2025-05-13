@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainPage from './screens/MainPage';
-import Page1 from './screens/turshilt';
+import Page1 from './screens/LearnPage';
 import Page2 from './screens/ThinkPage';
 import Page3 from './screens/PathGamePage';
 import PausePage from './screens/PausePage';
