@@ -89,7 +89,6 @@ function App() {
         if (
             fingerCount === 0 &&
             lastValidFingerCountRef.current !== null &&
-            !canRetry &&
             !gameWon
         ) {
             handleCheckWithValue(lastValidFingerCountRef.current);

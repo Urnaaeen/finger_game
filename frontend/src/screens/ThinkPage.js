@@ -17,14 +17,15 @@ function App() {
 
 
   const generateChallenge = () => {
-    const num1 = Math.floor(Math.random() * 10) + 1;
-    const num2 = Math.floor(Math.random() * 10) + 1;
-    const operators = ["+", "-", "*", "/"];
+    const operators = ["+", "-"];
     const operator = operators[Math.floor(Math.random() * operators.length)];
 
-    let expression = `${num1} ${operator} ${num2}`;
-    let result;
+    const num1 = Math.floor(Math.random() * 10) + 1; // 1–10
+    const num2 = Math.floor(Math.random() * 10) + 1; // 1–10
 
+    const expression = `${num1} ${operator} ${num2}`;
+
+    let result;
     switch (operator) {
       case "+":
         result = num1 + num2;
@@ -32,17 +33,11 @@ function App() {
       case "-":
         result = num1 - num2;
         break;
-      case "*":
-        result = num1 * num2;
-        break;
-      case "/":
-        result = parseFloat((num1 / num2).toFixed(1)); // нэг оронгийн бутархай
-        break;
     }
 
-    // Үр дүн нь 1-10 хооронд байгаа эсэхийг шалгах
-    if (result < 1 || result > 10 || isNaN(result)) {
-      return generateChallenge(); // Хүлээн зөвшөөрөгдөхгүй бол дахин үүсгэнэ
+    // Хариу 1–10 хооронд байгаа эсэхийг шалгана.
+    if (result < 1 || result > 10) {
+      return generateChallenge(); // Хэрвээ буруу бол өөр илэрхийлэл үүсгэнэ
     }
 
     setRandomExpression(expression);
@@ -52,6 +47,7 @@ function App() {
     setCanRetry(false);
     lastValidFingerCountRef.current = null;
   };
+
 
 
   const videoRef = useRef(null);
@@ -117,7 +113,6 @@ function App() {
     if (
       fingerCount === 0 &&
       lastValidFingerCountRef.current !== null &&
-      !canRetry &&
       !gameWon
     ) {
       handleCheckWithValue(lastValidFingerCountRef.current);
@@ -155,17 +150,26 @@ function App() {
 
   const progressWidth = `${(level / totalLevels) * 100}%`;
 
+  useEffect(() => {
+    if (gameWon) {
+      const timeout = setTimeout(() => {
+        navigate('/page4');
+      }, 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [gameWon, navigate]);
+
   return (
     <>
       <style>
-    {`
+        {`
       @keyframes pulse {
         0% { transform: scale(1); }
         50% { transform: scale(1.15); }
         100% { transform: scale(1); }
       }
     `}
-  </style>
+      </style>
 
       <div style={{
         display: "flex",
@@ -245,20 +249,20 @@ function App() {
         }}
       >
         <div
-    style={{
-      flex: 7,
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      fontSize: "200px",
-      fontWeight: "bold",
-      color: "#9C27B0",
-      textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
-      animation: "pulse 1s infinite",
-    }}
-  >
-    {randomExpression}
-  </div>
+          style={{
+            flex: 7,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "200px",
+            fontWeight: "bold",
+            color: "#9C27B0",
+            textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
+            animation: "pulse 1s infinite",
+          }}
+        >
+          {randomExpression}
+        </div>
 
 
         <div style={{ flex: 3, textAlign: "center" }}>
