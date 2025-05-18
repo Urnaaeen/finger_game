@@ -3,26 +3,35 @@ import { useNavigate } from 'react-router-dom';
 
 function App() {
   const navigate = useNavigate();
-  const totalLevels = 5;
+  const totalLevels = 4;
 
-  const [randomExpression, setRandomExpression] = useState([]); // ✅
-  const [correctAnswer, setCorrectAnswer] = useState(0);         // ✅
+  const [randomExpression, setRandomExpression] = useState([]);
+  const [correctAnswer, setCorrectAnswer] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [result, setResult] = useState("");
   const [level, setLevel] = useState(0);
   const [canRetry, setCanRetry] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const lastValidFingerCountRef = useRef(null);
-  const gridRows = 10;
-  const gridCols = 20;
-  const leaf = "🌿";
+  const gridRows = 8;
+  const gridCols = 11;
+  const leaf = "🍀";
   const [steps, setSteps] = useState([]);
   const [frogPosition, setFrogPosition] = useState({ x: 0, y: 0 });
+
+  
 
 
   const generateChallenge = () => {
     const directions = ["right", "down", "right", "up"];
-    const generatedSteps = Array.from({ length: 4 }, () => Math.floor(Math.random() * 5) + 1);
+    const generatedSteps = directions.map((dir, i) => {
+    if (dir === "down") {
+      const options = [6, 7];
+      return options[Math.floor(Math.random() * options.length)];
+    } else {
+      return Math.floor(Math.random() * 5) + 1;
+    }
+  });
     let pathMap = Array.from({ length: gridRows }, () => Array(gridCols).fill(""));
 
     let x = 0, y = 0;
@@ -154,6 +163,7 @@ function App() {
       const newMap = randomExpression.map(row => row.slice());
       newMap[y][x] = leaf;
 
+      // Мэлхийг зөвхөн сүүлийн байрлалд тавихын тулд давталтаар зөвхөн координат тооцоолно
       for (let i = 0; i < stepCount; i++) {
         switch (direction) {
           case "right": x++; break;
@@ -161,16 +171,18 @@ function App() {
           case "up": y--; break;
         }
 
-        // Шалгах хэсэг: x болон y-ийн хязгаарыг шалгах
-        if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
-          // Хэтэрсэн байрлалд болохгүй
-          if (newMap[y][x] === leaf || newMap[y][x] === "🚩") {
-            newMap[y][x] = "🐸";
-          }
-        } else {
-          break; // Гадагшилсан тохиолдолд хөдөлгөөнийг зогсоох
+        if (!(x >= 0 && x < gridCols && y >= 0 && y < gridRows)) {
+          break; // хязгаараас гарвал зогсооно
         }
       }
+
+      // Сүүлчийн байрлалд мэлхийг тавих
+      if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
+        if (newMap[y][x] === leaf || newMap[y][x] === "🚩") {
+          newMap[y][x] = "🐸";
+        }
+      }
+
 
       setRandomExpression(newMap);
       setFrogPosition({ x, y });
@@ -210,6 +222,36 @@ function App() {
             50% { transform: scale(1.15); }
             100% { transform: scale(1); }
           }
+
+          @keyframes idleBounce {
+            0%, 100% {
+              transform: translateY(0);
+            }
+            50% {
+              transform: translateY(-5px);
+            }
+          }
+
+
+          @keyframes grow {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+          }
+
+          @keyframes jump {
+            0% { transform: translateY(0); }
+            30% { transform: translateY(-20px); }
+            60% { transform: translateY(5px); }
+            100% { transform: translateY(0); }
+          }
+
+          @keyframes flagWave {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
+          }
+
+
         `}
       </style>
 
@@ -278,12 +320,12 @@ function App() {
         width: "80%",
         margin: "0 auto",
         gap: "20px",
-        backgroundColor: "#f9f1ff",
+        backgroundColor: "#CCFFFE",
         padding: "20px",
         borderRadius: "15px",
       }}>
         <div style={{
-          flex: 7,
+          flex: 8,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -292,35 +334,88 @@ function App() {
           color: "#9C27B0",
           textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
         }}>
+
           {Array.isArray(randomExpression) && (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${gridCols}, 20px)`,
-              gridTemplateRows: `repeat(${gridRows}, 20px)`,
-              gap: "1px",
-              justifyContent: "center",
-              margin: "20px auto",
-            }}>
-              {randomExpression.flat().map((cell, index) => (
-                <div key={index} style={{
-                  width: "20px",
-                  height: "20px",
-                  textAlign: "center",
-                  fontSize: "16px",
-                }}>
-                  {cell}
-                </div>
-              ))}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                maxWidth: "90%",
+                margin: "0 auto"
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: `repeat(${gridCols}, 80px)`, // 🔍 60 эсвэл 70 гэх мэт тохируулж болно
+                  gridTemplateRows: `repeat(${gridRows}, 80px)`,
+                  gap: "4px",
+                  padding: "20px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#ccfffe",
+                  borderRadius: "10px",
+                }}
+              >
+                {randomExpression.flat().map((cell, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      width: "80px", // навчны хэмжээтэй ижил
+                      height: "80px",
+                      position: "relative",
+                    }}
+                  >
+                    {/* Навч - арын давхар */}
+                    {cell === "🍀" || cell === "🐸" || cell === "🚩" ? (
+                      <img
+                        src="/images/navch.png"
+                        alt="leaf"
+                        width="80"
+                        height="80"
+                        style={{ position: "absolute", top: 0, left: 0, animation: "grow 0.5s ease" }}
+                      />
+                    ) : null}
+
+                    {/* Мэлхий - дээр давхар гарч ирнэ */}
+                    {cell === "🐸" && (
+                      <img
+                        src="/images/melhii.png"
+                        alt="frog"
+                        width="50"
+                        height="50"
+                        style={{ position: "absolute", top: 0, left: 9 , animation: "idleBounce 1.5s infinite ease-in-out"}}
+                      />
+                    )}
+
+                    {/* Туг */}
+                    {cell === "🚩" && (
+                      <img
+                        src="/images/tug.png"
+                        alt="flag"
+                        width="60"
+                        height="60"
+                        style={{ position: "absolute", bottom:10 , left: 9, animation: "flagWave 2s infinite ease-in-out" }}
+                      />
+                    )}
+                  </div>
+
+                ))}
+
+              </div>
             </div>
           )}
+
+
         </div>
 
-        <div style={{ flex: 3, textAlign: "center" }}>
+        <div style={{ flex: 2, textAlign: "center" }}>
           <video
             ref={videoRef}
             autoPlay
-            width="640"
-            height="480"
+            width="400"
+            height="400"
             style={{ transform: "scaleX(-1)" }}
           />
           <h3 style={{ marginTop: "20px", fontSize: "24px" }}>
