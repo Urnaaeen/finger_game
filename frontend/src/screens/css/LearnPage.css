@@ -11,7 +11,7 @@ html, body, #root {
   height: 100%;
 }
 
-.game-container {
+.game-container1 {
   background: linear-gradient(145deg, #f3e5f5, #e1bee7);
   min-height: 100vh;
   padding: 20px;
@@ -20,7 +20,7 @@ html, body, #root {
   justify-content: flex-start;
 }
 
-.level-progress-bar {
+.level-progress-bar1 {
   background: #caa2e4;
   border-radius: 20px;
   overflow: hidden;
@@ -28,13 +28,13 @@ html, body, #root {
   width: 100%;
 }
 
-.level-progress-fill {
+.level-progress-fill1 {
   background: #7b3fbf;
   height: 100%;
   transition: width 0.3s ease-in-out;
 }
 
-.learn-content {
+.learn-content1 {
   display: flex;
   width: 80%;
   max-width: 900px;
@@ -47,7 +47,7 @@ html, body, #root {
   align-items: center;
 }
 
-.learn-images {
+.learn-images1 {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -55,27 +55,27 @@ html, body, #root {
   flex: 7;
 }
 
-.animal-img {
+.animal-img1 {
   width: 100px;
   height: 100px;
 }
 
-.learn-video-side {
+.learn-video-side1 {
   flex: 3;
   text-align: center;
 }
 
-.finger-count {
+.finger-count1 {
   margin-top: 20px;
   font-size: 24px;
 }
 
-.highlighted-number {
+.highlighted-number1 {
   color: #7b5fd0;
   font-weight: bold;
 }
 
-.learn-input {
+.learn-input1 {
   margin-top: 10px;
   padding: 10px;
   font-size: 18px;
@@ -86,7 +86,7 @@ html, body, #root {
   transition: 0.2s;
 }
 
-.check-btn {
+.check-btn1 {
   margin-top: 10px;
   padding: 10px 20px;
   font-size: 18px;
@@ -96,7 +96,7 @@ html, body, #root {
   cursor: pointer;
 }
 
-.result-text {
+.result-text1 {
   margin-top: 15px;
   font-size: 20px;
 }
@@ -107,14 +107,14 @@ html, body, #root {
   40%, 80% { transform: translateX(8px); }
 }
 
-.shake-camera {
+.shake-camera1 {
   animation: shake 0.6s;
   border: 4px solid red;
   border-radius: 8px; 
 }
 
 
-.top-bar {
+.top-bar1 {
   display: flex;
   width: 80%;
   max-width: 900px;
@@ -123,7 +123,7 @@ html, body, #root {
   gap: 20px;
 }
 
-.pause-button {
+.pause-button1 {
   background: none;
   border: none;
   cursor: pointer;
@@ -135,25 +135,25 @@ html, body, #root {
   justify-content: center;
 }
 
-.pause-icon {
+.pause-icon1 {
   display: flex;
   gap: 6px;
 }
 
-.pause-icon > div {
+.pause-icon1 > div {
   width: 4px;
   height: 24px;
   background-color: #7b3fbf;
   border-radius: 2px;
 }
 
-.pause-button span > div {
+.pause-button1 span > div {
   width: 6px;           
   height: 28px;         
   background-color: #333;
   border-radius: 2px;   
 }
 
-.progress-wrapper {
+.progress-wrapper1 {
   flex: 9;
 }

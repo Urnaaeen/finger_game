@@ -116,7 +116,7 @@ export default function LearnPage() {
     useEffect(() => {
         if (gameWon) {
             confetti({ particleCount: 100, spread: 80 });
-            setTimeout(() => navigate('/page4'), 1500);
+            setTimeout(() => navigate('/Success1'), 1500);
         }
     }, [gameWon, navigate]);
 
@@ -210,40 +210,40 @@ export default function LearnPage() {
     const progressWidth = `${(level / totalLevels) * 100}%`;
 
     return (
-        <div className="game-container">
-            <div className="top-bar">
-                <button aria-label="Pause game" className="pause-button" onClick={() => navigate('/page1/pause')}>
-                    <span className="pause-icon">
-                        <div></div>
-                        <div></div>
+        <div className="game-container1">
+            <div className="top-bar1">
+                <button aria-label="Pause game" className="pause-button1" onClick={() => navigate('/page1/pause')}>
+                    <span className="pause-icon1">
+                    <div></div>
+                    <div></div>
                     </span>
-                </button>
-                <div className="progress-wrapper" aria-label="Level progress bar">
-                    <div className="level-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
-                        <div className="level-progress-fill" style={{ width: progressWidth }}></div>
-                    </div>
+                </button>    
+                <div className="progress-wrapper1" aria-label="Level progress bar">
+                        <div className="level-progress-bar1" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+                        <div className="level-progress-fill1" style={{ width: progressWidth }}></div>
+                        </div>
                 </div>
             </div>
 
-            <div className="learn-content">
-                <div className="learn-images">
+            <div className="learn-content1">
+                <div className="learn-images1">
                     {[...Array(randomCount)].map((_, index) => (
-                        <img key={index} src={randomAnimal.image} alt={randomAnimal.name} className="animal-img" />
+                        <img key={index} src={randomAnimal.image} alt={randomAnimal.name} className="animal-img1" />
                     ))}
                 </div>
 
-                <div className="learn-video-side">
+                <div className="learn-video-side1">
                     <video
-                        ref={videoRef}
-                        autoPlay
-                        width="640"
-                        height="480"
-                        style={{ transform: "scaleX(-1)" }}
-                        className={shakeCamera ? "shake-camera" : ""}
-                    />
-                    <h3 className="finger-count">
-                        Танигдсан хурууны тоо: {" "}
-                        <span className="highlighted-number">
+  ref={videoRef}
+  autoPlay
+  width="640"
+  height="480"
+  style={{ transform: "scaleX(-1)" }}
+  className={shakeCamera ? "shake-camera" : ""}
+ />
+                    <h3 className="finger-count1">
+                        Танигдсан хурууны тоо:{" "}
+                        <span className="highlighted-number1">
                             {fingerCount !== null
                                 ? fingerCount
                                 : lastValidFingerCountRef.current !== null
@@ -253,17 +253,17 @@ export default function LearnPage() {
                     </h3>
 
                     <input
-                        type="number"
-                        placeholder="Хэдэн амьтан байна вэ?"
-                        value={userAnswer}
-                        onChange={(e) => setUserAnswer(e.target.value)}
-                        className={`learn-input ${shake ? "shake" : ""}`}
-                    />
-                    <button onClick={handleCheck} className="check-btn">
+  type="number"
+  placeholder="Хэдэн амьтан байна?"
+  value={userAnswer}
+  onChange={(e) => setUserAnswer(e.target.value)}
+  className={`learn-input ${shake ? "shake" : ""}`}
+/>
+                    <button onClick={handleCheck} className="check-btn1">
                         Шалгах
                     </button>
 
-                    <div className="result-text">{result}</div>
+                    <div className="result-text1">{result}</div>
                 </div>
             </div>
         </div>

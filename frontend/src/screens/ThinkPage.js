@@ -130,7 +130,7 @@ export default function ThinkPage() {
   useEffect(() => {
     if (gameWon) {
       confetti({ particleCount: 100, spread: 80 });
-      setTimeout(() => navigate('/page4'), 1500);
+      setTimeout(() => navigate('/Success2'), 300);
     }
   }, [gameWon, navigate]);
 
@@ -226,7 +226,7 @@ export default function ThinkPage() {
           <video
             ref={videoRef}
             autoPlay
-            width="640"
+            width="400px"
             height="480"
             style={{ transform: "scaleX(-1)" }}
             className={shakeCamera ? "shake-camera" : ""}

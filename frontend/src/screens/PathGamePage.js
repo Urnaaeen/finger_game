@@ -232,7 +232,7 @@ function App() {
   useEffect(() => {
     if (gameWon) {
       const timeout = setTimeout(() => {
-        navigate("/page4");
+        navigate("/Success3");
       }, 300);
       return () => clearTimeout(timeout);
     }
