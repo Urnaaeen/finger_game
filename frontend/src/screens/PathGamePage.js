@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import Confetti from 'canvas-confetti';
+
 
 function App() {
   const navigate = useNavigate();
@@ -19,41 +21,48 @@ function App() {
   const [steps, setSteps] = useState([]);
   const [frogPosition, setFrogPosition] = useState({ x: 0, y: 0 });
 
-  
-
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [shakeCamera, setShakeCamera] = useState(false);
 
   const generateChallenge = () => {
     const directions = ["right", "down", "right", "up"];
     const generatedSteps = directions.map((dir, i) => {
-    if (dir === "down") {
-      const options = [6, 7];
-      return options[Math.floor(Math.random() * options.length)];
-    } else {
-      return Math.floor(Math.random() * 5) + 1;
-    }
-  });
-    let pathMap = Array.from({ length: gridRows }, () => Array(gridCols).fill(""));
+      if (dir === "down") {
+        const options = [6, 7];
+        return options[Math.floor(Math.random() * options.length)];
+      } else {
+        return Math.floor(Math.random() * 5) + 1;
+      }
+    });
+    let pathMap = Array.from({ length: gridRows }, () =>
+      Array(gridCols).fill("")
+    );
 
-    let x = 0, y = 0;
+    let x = 0,
+      y = 0;
     pathMap[0][0] = "🐸";
 
     for (let i = 0; i < generatedSteps.length; i++) {
       const step = generatedSteps[i];
       for (let j = 0; j < step; j++) {
         switch (directions[i]) {
-          case "right": x++; break;
-          case "down": y++; break;
-          case "up": y--; break;
+          case "right":
+            x++;
+            break;
+          case "down":
+            y++;
+            break;
+          case "up":
+            y--;
+            break;
         }
 
-        // Шалгах хэсэг: x болон y-ийн хязгаарыг шалгах
         if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
           pathMap[y][x] = leaf;
         }
       }
     }
 
-    // Эцсийн байрлалд улаан туг тавина
     if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
       pathMap[y][x] = "🚩";
     }
@@ -65,8 +74,10 @@ function App() {
     setResult("");
     setCanRetry(false);
     lastValidFingerCountRef.current = null;
+    setFrogPosition({ x: 0, y: 0 });
+    setShowConfetti(false);
+    setShakeCamera(false);
   };
-
 
   const videoRef = useRef(null);
   const ws = useRef(null);
@@ -75,7 +86,9 @@ function App() {
   useEffect(() => {
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
         videoRef.current.srcObject = stream;
       } catch (err) {
         console.error("🎥 Камер асаахад алдаа:", err);
@@ -143,7 +156,12 @@ function App() {
   }, []);
 
   const handleCheck = () => {
-    const value = userAnswer !== "" ? userAnswer : (fingerCount > 0 ? fingerCount : lastValidFingerCountRef.current);
+    const value =
+      userAnswer !== ""
+        ? userAnswer
+        : fingerCount > 0
+        ? fingerCount
+        : lastValidFingerCountRef.current;
     handleCheckWithValue(value);
   };
 
@@ -153,36 +171,40 @@ function App() {
       const nextLevel = level + 1;
       setLevel(nextLevel);
       setResult("🎉 Зөв байна!");
+      setShowConfetti(true);
+      setShakeCamera(false);
+      setCanRetry(false);
 
-      // 🐸 Мэлхийг дараагийн байрлалд шилжүүлнэ
       let { x, y } = frogPosition;
       const direction = ["right", "down", "right", "up"][level];
       const stepCount = steps[level];
 
-      // Хуучин мэлхийг цэвэрлэнэ
-      const newMap = randomExpression.map(row => row.slice());
+      const newMap = randomExpression.map((row) => row.slice());
       newMap[y][x] = leaf;
 
-      // Мэлхийг зөвхөн сүүлийн байрлалд тавихын тулд давталтаар зөвхөн координат тооцоолно
       for (let i = 0; i < stepCount; i++) {
         switch (direction) {
-          case "right": x++; break;
-          case "down": y++; break;
-          case "up": y--; break;
+          case "right":
+            x++;
+            break;
+          case "down":
+            y++;
+            break;
+          case "up":
+            y--;
+            break;
         }
 
         if (!(x >= 0 && x < gridCols && y >= 0 && y < gridRows)) {
-          break; // хязгаараас гарвал зогсооно
+          break;
         }
       }
 
-      // Сүүлчийн байрлалд мэлхийг тавих
       if (x >= 0 && x < gridCols && y >= 0 && y < gridRows) {
         if (newMap[y][x] === leaf || newMap[y][x] === "🚩") {
           newMap[y][x] = "🐸";
         }
       }
-
 
       setRandomExpression(newMap);
       setFrogPosition({ x, y });
@@ -193,324 +215,278 @@ function App() {
         setTimeout(() => {
           setResult("");
           setUserAnswer("");
-        }, 1000);
+          setShowConfetti(false);
+        }, 1500);
       }
     } else {
       setResult("😅 Буруу байна. Дахин оролдоорой!");
       setCanRetry(true);
+      setShakeCamera(true);
+      setShowConfetti(false);
+      setTimeout(() => setShakeCamera(false), 500);
     }
   };
-
 
   const progressWidth = `${(level / totalLevels) * 100}%`;
 
   useEffect(() => {
     if (gameWon) {
       const timeout = setTimeout(() => {
-        navigate('/page4');
+        navigate("/page4");
       }, 300);
       return () => clearTimeout(timeout);
     }
   }, [gameWon, navigate]);
 
   return (
-    <div style={{ backgroundColor: "#CCFFFE", minHeight: "100vh" }}>
-      <style>
-        
-        {`
-          @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-            100% { transform: scale(1); }
-          }
-
-          @keyframes idleBounce {
-            0%, 100% {
-              transform: translateY(0);
-            }
-            50% {
-              transform: translateY(-5px);
-            }
-          }
-
-
-          @keyframes grow {
-            from { transform: scale(0.5); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-          }
-
-          @keyframes jump {
-            0% { transform: translateY(0); }
-            30% { transform: translateY(-20px); }
-            60% { transform: translateY(5px); }
-            100% { transform: translateY(0); }
-          }
-
-          @keyframes coinSpin {
-  0% {
-    transform: rotateY(0deg);
-    content: url('/images/1.png');
-  }
-  50% {
-    transform: rotateY(90deg);
-    content: url('/images/2.png');
-  }
-  100% {
-    transform: rotateY(180deg);
-    content: url('/images/3.png');
-  }
-}
-
-
-@keyframes coinSpin {
-  0% {
-    transform: rotateY(0deg);
-    content: url('/images/1.png');
-  }
-  50% {
-    transform: rotateY(90deg);
-    content: url('/images/2.png');
-  }
-  100% {
-    transform: rotateY(180deg);
-    content: url('/images/3.png');
-  }
-}
-
-
-
-          .custom-button {
-  background-color: #E2FBCD;
-  padding: 10px 20px;
-  font-size: 18px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  transition: background-color 0.3s ease;
-}
-
-.custom-button:hover {
-  background-color: #5DC26C; /* Hover үед өөр өнгө */
-}
-
-
-        `}
-      </style>
-
-      <div style={{
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "center",
-        width: "80%",
-        margin: "0 auto",
-        gap: "20px",
+    <div
+      style={{
+        backgroundColor: "#fff",
+        minHeight: "100vh",
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        color: "#222",
         padding: "20px",
-        borderRadius: "15px",
-        backgroundColor: "#CCFFFE",
-      }}>
-        <div
-          style={{
-            background: "#E2FBCD",
-            height: "50px",
-            width: "80%",
-            margin: "20px auto",
-            borderRadius: "20px",
-            overflow: "hidden",
-            flex: 9,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "10px",
-          }}
-        >
-          <div
-            style={{
-              background: "#5DC26C",
-              height: "100%",
-              width: progressWidth,
-              transition: "width 0.3s",
-            }}
-          />
-        </div>
-        <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <button
-            onClick={() => navigate('/page1/pause')}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: '#E2FBCD',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-              cursor: 'pointer'
-            }}
-          >
-            <span style={{ display: 'flex', gap: '3px' }}>
-              <div style={{ width: '4px', height: '16px', backgroundColor: '#333' }} />
-              <div style={{ width: '4px', height: '16px', backgroundColor: '#333' }} />
-            </span>
-          </button>
-        </div>
-      </div>
+      }}
+    >
+      {/* Confetti on correct */}
+      {showConfetti && <Confetti recycle={false} numberOfPieces={200} />}
 
-      <div style={{
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "start",
-        width: "90%",
-        margin: "0 auto",
-        gap: "20px",
-        backgroundColor: "#CCFFFE",
-        padding: "20px",
-        borderRadius: "15px",
-      }}>
-        <div style={{
-          flex: 7,
+      {/* Top bar with progress and pause */}
+      <div
+        style={{
+          maxWidth: 600,
+          margin: "0 auto 20px",
+          padding: "10px 20px",
+          backgroundColor: "#e6f7ff",
+          borderRadius: 20,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "start",
-          fontSize: "200px",
-          fontWeight: "bold",
-          color: "#9C27B0",
-          textShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
-        }}>
-
-          {Array.isArray(randomExpression) && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                maxWidth: "90%",
-                margin: "0 auto"
-              }}
-            >
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${gridCols}, 80px)`, // 🔍 60 эсвэл 70 гэх мэт тохируулж болно
-                  gridTemplateRows: `repeat(${gridRows}, 80px)`,
-                  gap: "4px",
-                  padding: "20px",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: "#ccfffe",
-                  borderRadius: "10px",
-                }}
-              >
-                {randomExpression.flat().map((cell, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      width: "80px", // навчны хэмжээтэй ижил
-                      height: "80px",
-                      position: "relative",
-                    }}
-                  >
-                    {/* Навч - арын давхар */}
-                    {cell === "🍀" || cell === "🐸" || cell === "🚩" ? (
-                      <img
-                        src="/images/navch.png"
-                        alt="leaf"
-                        width="80"
-                        height="80"
-                        style={{ position: "absolute", top: 0, left: 0, animation: "grow 0.5s ease" }}
-                      />
-                    ) : null}
-
-                    {/* Мэлхий - дээр давхар гарч ирнэ */}
-                    {cell === "🐸" && (
-                      <img
-                        src="/images/melhii.png"
-                        alt="frog"
-                        width="70"
-                        height="70"
-                        style={{ position: "absolute", top: 0, left: 9 , animation: "idleBounce 1.5s infinite ease-in-out"}}
-                      />
-                    )}
-
-                    {cell === "🚩" && (
-  <img
-    src="/images/1.png"
-    alt="coin"
-    width="60"
-    height="60"
+          alignItems: "center",
+          gap: 20,
+          boxShadow: "0 3px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <div
+  style={{
+    flex: 1,
+    height: 20,
+    backgroundColor: "#e0e7ff", // lighter blue background
+    borderRadius: 20,
+    overflow: "hidden",
+    boxShadow: "inset 0 1px 3px rgba(0, 0, 0, 0.1)", // inner shadow for depth
+  }}
+  aria-label="Progress bar"
+>
+  <div
     style={{
-      position: "absolute",
-      bottom: 10,
-      left: 9,
-      animation: "coinSpin 2s infinite linear",
-      transformStyle: "preserve-3d",
-      backfaceVisibility: "hidden",
+      width: progressWidth,
+      height: "100%",
+      background: "linear-gradient(90deg, #4f83cc, #1890ff)", // gradient fill
+      borderRadius: "20px 0 0 20px",
+      transition: "width 0.5s ease",
+      boxShadow: "0 2px 8px rgba(24,144,255,0.3)", // subtle glow
     }}
   />
-)}
-
-                  </div>
-
-                ))}
-
-              </div>
-            </div>
-          )}
+</div>
 
 
-        </div>
-
-                <div style={{ flex: 3, textAlign: "center" }}>
-                    <video
-                        ref={videoRef}
-                        autoPlay
-                        width="640"
-                        height="480"
-                        style={{ transform: "scaleX(-1)" }}
-                    />
-
-                    <h3 style={{ marginTop: "20px", fontSize: "24px" }}>
-                        Танигдсан хурууны тоо:{" "}
-                        <span style={{ color: "blue" }}>
-                            {fingerCount !== null
-                                ? fingerCount
-                                : lastValidFingerCountRef.current !== null
-                                    ? lastValidFingerCountRef.current
-                                    : "..."}
-                        </span>
-                    </h3>
-
-                    <input
-                        type="number"
-                        placeholder="Хэдэн амьтан байна?"
-                        value={userAnswer}
-                        onChange={(e) => setUserAnswer(e.target.value)}
-                        style={{
-                            padding: "10px",
-                            fontSize: "18px",
-                            borderRadius: "10px",
-                            border: "1px solid #ccc",
-                            width: "100%",
-                            boxSizing: "border-box",
-                        }}
-                    />
-
-                    <button
-  onClick={handleCheck}
-  className="custom-button"
-  disabled={gameWon}
+        <button
+          onClick={() => navigate("/page1")}
+style={{
+border: "none",
+backgroundColor: "#1890ff",
+color: "white",
+fontWeight: "bold",
+borderRadius: 20,
+padding: "6px 15px",
+cursor: "pointer",
+userSelect: "none",
+fontSize: 16,
+boxShadow: "0 2px 8px rgba(24,144,255,0.4)",
+transition: "background-color 0.3s ease",
+}}
+onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0f6dd9")}
+onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1890ff")}
+aria-label="Pause game and go back"
 >
-  Шалгах
+❚❚
 </button>
+</div>
+<div style={{ display: "flex", gap: "20px", justifyContent: "center"
+ }}>
+  {/* Game grid */}
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: `repeat(${gridCols}, 1fr)`,
+      gridTemplateRows: `repeat(${gridRows}, 1fr)`,
+      width: 500,
+      height: 400,
+      border: "3px solid #1890ff",
+      borderRadius: 10,
+      overflow: "hidden",
+      userSelect: "none",
+    }}
+    aria-label="Game grid showing frog path"
+  >
+    {randomExpression.flatMap((row, rowIndex) =>
+      row.map((cell, colIndex) => (
+        <div
+          key={`${rowIndex}-${colIndex}`}
+          style={{
+            width: 40,
+            height: 40,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: 24,
+            border:
+              cell === "🐸"
+                ? "2px solid #096dd9"
+                : "1px solid #cce6ff",
+            backgroundColor: cell === "🚩" ? "#bae7ff" : "#f0f8ff",
+          }}
+          aria-label={
+            cell === "🐸"
+              ? "Frog current position"
+              : cell === "🚩"
+              ? "Goal"
+              : cell === leaf
+              ? "Leaf step"
+              : "Empty"
+          }
+        >
+          {cell}
+        </div>
+      ))
+    )}
+  </div>
+ <div style={{ display: "flex", flexDirection: "column", gap: "10px" , justifyContent: "center"}}>
+  {/* Camera feed */}
+  <div
+    style={{
+      position: "relative",
+      width: 300,
+      border: `4px solid ${shakeCamera ? "#ff4d4f" : "#1890ff"}`,
+      borderRadius: 12,
+      boxShadow: shakeCamera
+        ? "0 0 10px 3px #ff4d4f"
+        : "0 0 10px 3px #1890ff",
+      animation: shakeCamera ? "shake 0.5s" : "none",
+      overflow: "hidden",
+    }}
+  >
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      style={{
+        width: "100%",
+        display: "block",
+        borderRadius: 8,
+        filter: "brightness(0.9)",
+      }}
+      aria-label="Camera video feed"
+    />
+  </div>
 
-                    <div style={{ marginTop: "10px", fontSize: "20px", color: result.includes("Зөв") ? "green" : "red" }}>
-                        {result}
-                    </div>
-                </div>
-      </div>
+  {/* User input */}
+  <div
+    style={{
+      maxWidth: 600,
+      margin: "0 auto",
+      display: "flex",
+      gap: 10,
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <input
+      type="number"
+      min="0"
+      max="20"
+      placeholder="Тоо оруулах"
+      value={userAnswer}
+      onChange={(e) => setUserAnswer(e.target.value)}
+      disabled={gameWon}
+      style={{
+        fontSize: 20,
+        padding: "10px",
+        borderRadius: 12,
+        border: "2px solid #1890ff",
+        flexGrow: 1,
+        maxWidth: 150,
+        outline: "none",
+      }}
+      aria-label="Input your answer"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") handleCheck();
+      }}
+    />
+
+    <button
+      onClick={handleCheck}
+      disabled={gameWon}
+      style={{
+        backgroundColor: "#1890ff",
+        color: "white",
+        border: "none",
+        borderRadius: 12,
+        fontWeight: "bold",
+        fontSize: 18,
+        padding: "10px 15px",
+        cursor: "pointer",
+        userSelect: "none",
+        boxShadow: "0 3px 10px rgba(24,144,255,0.6)",
+        transition: "background-color 0.3s ease",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0f6dd9")}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#1890ff")}
+      aria-label="Check answer button"
+    >
+      Шалгах
+    </button>
+  </div>
+
+  {/* Result message */}
+  {result && (
+    <div
+      style={{
+        maxWidth: 600,
+        margin: "15px auto 0",
+        fontWeight: "bold",
+        fontSize: 18,
+        color: result.includes("Зөв") ? "#52c41a" : "#ff4d4f",
+        textAlign: "center",
+        userSelect: "none",
+        minHeight: 28,
+      }}
+      role="alert"
+      aria-live="polite"
+    >
+      {result}
     </div>
-  );
+  )}
+  </div>
+  </div>
+
+  <style>{`
+    @keyframes shake {
+      0% { transform: translate(1px, 1px) rotate(0deg); }
+      10% { transform: translate(-1px, -2px) rotate(-1deg); }
+      20% { transform: translate(-3px, 0px) rotate(1deg); }
+      30% { transform: translate(3px, 2px) rotate(0deg); }
+      40% { transform: translate(1px, -1px) rotate(1deg); }
+      50% { transform: translate(-1px, 2px) rotate(-1deg); }
+      60% { transform: translate(-3px, 1px) rotate(0deg); }
+      70% { transform: translate(3px, 1px) rotate(-1deg); }
+      80% { transform: translate(-1px, -1px) rotate(1deg); }
+      90% { transform: translate(1px, 2px) rotate(0deg); }
+      100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+  `}</style>
+</div>
+);
 }
 
 export default App;

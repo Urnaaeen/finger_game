@@ -11,7 +11,7 @@
     padding: 80px;
     border-radius: 30px;
     width: 800px;
-    height: 500px;
+    max-height: 500px;
   }
   
   .pause-header {
@@ -34,14 +34,14 @@
     gap: 40px;
   }
   
-  .pause-button {
+  .pause-button-Pause {
     display: flex;
     align-items: center;
     gap: 40px;
     cursor: pointer;
   }
   
-  .pause-button .icon {
+  .pause-button-Pause .icon {
     width: 76px;
     height: 76px;
     background-color: #eab5ea;
@@ -54,7 +54,7 @@
     align-items: center;
   }
   
-  .pause-button .text {
+  .pause-button-Pause .text {
     flex-grow: 1;
     background-color: #e0f7ff;
     padding: 20px;

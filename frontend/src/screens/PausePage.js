@@ -23,7 +23,7 @@ function PauseScreen() {
 
 function PauseButton({ icon, text, onClick }) {
     return (
-      <div className="pause-button" onClick={onClick} style={{ cursor: 'pointer' }}>
+      <div className="pause-button-Pause" onClick={onClick} style={{ cursor: 'pointer' }}>
         <div className="icon">{icon}</div>
         <div className="text">{text}</div>
       </div>

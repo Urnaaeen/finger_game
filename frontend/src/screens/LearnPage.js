@@ -8,7 +8,7 @@ const animals = [
     { emoji: "🐶", name: "dog", image: "/images/animals/dog.png" },
     { emoji: "🐸", name: "frog", image: "/images/animals/frog.png" },
     { emoji: "🦩", name: "flamingo", image: "/images/animals/flamingo.png" },
-    { emoji: "🐘", name: "elephand", image: "/images/animals/elephand.png" }
+    { emoji: "🐘", name: "elephant", image: "/images/animals/elephand.png" }
 ];
 
 export default function LearnPage() {
@@ -104,7 +104,7 @@ export default function LearnPage() {
     useEffect(() => {
         if (gameWon) {
             confetti({ particleCount: 100, spread: 80 });
-            setTimeout(() => navigate('/page4'), 300);
+            setTimeout(() => navigate('/page4'), 1500);
         }
     }, [gameWon, navigate]);
 
