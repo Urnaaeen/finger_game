@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import './css/LearnPage.css';
-
+ 
 const animals = [
     { emoji: "🦁", name: "lion", image: "/images/animals/lion.png" },
     { emoji: "🐶", name: "dog", image: "/images/animals/dog.png" },
@@ -10,11 +10,11 @@ const animals = [
     { emoji: "🦩", name: "flamingo", image: "/images/animals/flamingo.png" },
     { emoji: "🐘", name: "elephant", image: "/images/animals/elephand.png" }
 ];
-
+ 
 export default function LearnPage() {
     const navigate = useNavigate();
     const totalLevels = 5;
-
+ 
     const [randomAnimal, setRandomAnimal] = useState(animals[0]);
     const [randomCount, setRandomCount] = useState(0);
     const [userAnswer, setUserAnswer] = useState("");
@@ -24,7 +24,7 @@ export default function LearnPage() {
     const [canRetry, setCanRetry] = useState(false);
     const [gameWon, setGameWon] = useState(false);
     const [shake, setShake] = useState(false);
-
+ 
     const videoRef = useRef(null);
     const ws = useRef(null);
     const audioRef = useRef(null);
@@ -32,7 +32,7 @@ export default function LearnPage() {
     const failAudioRef = useRef(null);
     const lastValidFingerCountRef = useRef(null);
     const [fingerCount, setFingerCount] = useState(null);
-
+ 
     const generateChallenge = () => {
         const animal = animals[Math.floor(Math.random() * animals.length)];
         const count = Math.floor(Math.random() * 10) + 1;
@@ -42,7 +42,7 @@ export default function LearnPage() {
         setResult("");
         setCanRetry(false);
         lastValidFingerCountRef.current = null;
-
+ 
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
@@ -52,11 +52,11 @@ export default function LearnPage() {
             console.warn("\ud83d\udd07 learn.mp3 тоглуулахад алдаа:", err);
         });
     };
-
+ 
     useEffect(() => {
         generateChallenge();
     }, []);
-
+ 
     useEffect(() => {
         const startCamera = async () => {
             try {
@@ -66,11 +66,11 @@ export default function LearnPage() {
                 console.error("\ud83c\udfa5 Камер асаахад алдаа:", err);
             }
         };
-
+ 
         startCamera();
-
+ 
         ws.current = new WebSocket("ws://localhost:8765");
-
+ 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.fingers !== undefined) {
@@ -80,7 +80,7 @@ export default function LearnPage() {
                 }
             }
         };
-
+ 
         const interval = setInterval(() => {
             if (
                 videoRef.current &&
@@ -96,13 +96,13 @@ export default function LearnPage() {
                 ws.current.send(JSON.stringify({ image }));
             }
         }, 300);
-
+ 
         return () => {
             clearInterval(interval);
             if (ws.current) ws.current.close();
         };
     }, []);
-
+ 
     useEffect(() => {
         if (
             fingerCount === 0 &&
@@ -135,10 +135,10 @@ useEffect(() => {
                 : fingerCount > 0
                     ? fingerCount
                     : lastValidFingerCountRef.current;
-
+ 
         handleCheckWithValue(value);
     };
-
+ 
     function fireConfettiExplosion() {
         const count = 200;
         const defaults = {
@@ -149,7 +149,7 @@ useEffect(() => {
             scalar: 1.2,
             zIndex: 9999,
         };
-
+ 
         function shoot(x, y) {
             confetti({
                 ...defaults,
@@ -157,14 +157,14 @@ useEffect(() => {
                 origin: { x, y }
             });
         }
-
+ 
         shoot(0.1, 0.5);
         shoot(0.3, 0.3);
         shoot(0.5, 0.5);
         shoot(0.7, 0.3);
         shoot(0.9, 0.5);
     }
-
+ 
     const handleCheckWithValue = (value) => {
         if (value === "" || value === null || value === undefined) {
             setShake(true);
@@ -172,9 +172,9 @@ useEffect(() => {
             setCanRetry(true);
             return;
         }
-
+ 
         const answerToCheck = parseInt(value, 10);
-
+ 
         if (answerToCheck === randomCount) {
             if (successAudioRef.current) {
                 successAudioRef.current.pause();
@@ -182,14 +182,14 @@ useEffect(() => {
             }
             successAudioRef.current = new Audio('/sounds/success.mp3');
             successAudioRef.current.play();
-
+ 
             fireConfettiExplosion();
-
+ 
             const nextLevel = level + 1;
             setLevel(nextLevel);
             setResult("🎉 Зөв байна!");
             setCanRetry(false);
-
+ 
             if (nextLevel === totalLevels) {
                 setGameWon(true);
             } else {
@@ -204,7 +204,7 @@ useEffect(() => {
             }
             failAudioRef.current = new Audio('/sounds/incorrect.mp3');
             failAudioRef.current.play();
-
+ 
             setShake(true);
             setShakeCamera(true);
             setTimeout(() => {
@@ -214,9 +214,9 @@ useEffect(() => {
             setCanRetry(true);
         }
     };
-
+ 
     const progressWidth = `${(level / totalLevels) * 100}%`;
-
+ 
     return (
         <div className="game-container1">
             <div className="top-bar1">
@@ -232,14 +232,14 @@ useEffect(() => {
                     </div>
                 </div>
             </div>
-
+ 
             <div className="learn-content1">
                 <div className="learn-images1">
                     {[...Array(randomCount)].map((_, index) => (
                         <img key={index} src={randomAnimal.image} alt={randomAnimal.name} className="animal-img1" />
                     ))}
                 </div>
-
+ 
                 <div className="learn-video-side1">
                     <video
                         ref={videoRef}
@@ -259,7 +259,7 @@ useEffect(() => {
                                     : "..."}
                         </span>
                     </h3>
-
+ 
                     <input
                         type="number"
                         placeholder="Хэдэн амьтан байна?"
@@ -270,7 +270,7 @@ useEffect(() => {
                     <button onClick={handleCheck} className="check-btn1">
                         Шалгах
                     </button>
-
+ 
                     <div className="result-text1">{result}</div>
                 </div>
             </div>
