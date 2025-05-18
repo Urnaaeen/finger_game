@@ -1,7 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
-const animals = ["🦁", "🐰", "🐶", "🐱", "🐸", "🐵", "🐼"];
+
+const animals = [
+    { emoji: "🦁", name: "lion", image: "/images/animals/lion.png" },
+    { emoji: "🐶", name: "dog", image: "/images/animals/dog.png" },
+    { emoji: "🐸", name: "frog", image: "/images/animals/frog.png" },
+    { emoji: "🦩", name: "flamingo", image: "/images/animals/flamingo.png" },
+    { emoji: "🐘", name: "elephand", image: "/images/animals/elephand.png" }
+];
 
 function App() {
     const navigate = useNavigate();
@@ -17,7 +24,7 @@ function App() {
 
     const generateChallenge = () => {
         const animal = animals[Math.floor(Math.random() * animals.length)];
-        const count = Math.floor(Math.random() * 5) + 1;
+        const count = Math.floor(Math.random() * 10) + 1;
         setRandomAnimal(animal);
         setRandomCount(count);
         setUserAnswer("");
@@ -138,7 +145,7 @@ function App() {
 
     return (
         <>
-            <div style={{               
+            <div style={{
                 display: "flex",
                 flexDirection: "row",
                 alignItems: "center",
@@ -222,13 +229,20 @@ function App() {
                         flexWrap: "wrap",
                         justifyContent: "center",
                         gap: "10px",
+                        maxWidth: "600px",
+                        margin: "0 auto",
                     }}
                 >
                     {[...Array(randomCount)].map((_, index) => (
-                        <span key={index} style={{ fontSize: "60px" }}>
-                            {randomAnimal}
-                        </span>
+                        <div key={index} style={{ flexBasis: "calc(33% - 5px)", textAlign: "center" }}>
+                            <img
+                                src={randomAnimal.image}
+                                alt={randomAnimal.name}
+                                style={{ width: "100px", height: "100px" }}
+                            />
+                        </div>
                     ))}
+
                 </div>
 
                 <div style={{ flex: 3, textAlign: "center" }}>
@@ -237,7 +251,7 @@ function App() {
                         autoPlay
                         width="640"
                         height="480"
-                        style={{transform: "scaleX(-1)" }}
+                        style={{ transform: "scaleX(-1)" }}
                     />
 
                     <h3 style={{ marginTop: "20px", fontSize: "24px" }}>
