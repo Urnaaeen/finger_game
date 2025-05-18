@@ -228,7 +228,6 @@ export default function ThinkPage() {
             autoPlay
             width="400px"
             height="480"
-            style={{ transform: "scaleX(-1)" }}
             className={shakeCamera ? "shake-camera" : ""}
           />
           <h3 className="finger-count">

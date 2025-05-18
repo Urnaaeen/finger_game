@@ -89,7 +89,7 @@ html, body, #root {
   cursor: pointer;
   margin-top: 10px;
   transition: 0.3s ease;
-  width: 320px;
+  width: 230px;
 }
 
 .check-btn:hover {

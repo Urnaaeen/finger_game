@@ -113,12 +113,20 @@ export default function LearnPage() {
         }
     }, [fingerCount]);
 
-    useEffect(() => {
-        if (gameWon) {
-            confetti({ particleCount: 100, spread: 80 });
-            setTimeout(() => navigate('/Success1'), 1500);
-        }
-    }, [gameWon, navigate]);
+useEffect(() => {
+    if (gameWon) {
+        confetti({ particleCount: 100, spread: 80 });
+
+        // ✅ Mission дуун тоглуулах
+        const missionAudio = new Audio('/sounds/mission.mp3');
+        missionAudio.play().catch((err) => {
+            console.warn("🎵 mission.mp3 тоглуулахад алдаа:", err);
+        });
+
+        setTimeout(() => navigate('/Success1'), 1500);
+    }
+}, [gameWon, navigate]);
+
 
     const handleCheck = () => {
         const value =
@@ -214,14 +222,14 @@ export default function LearnPage() {
             <div className="top-bar1">
                 <button aria-label="Pause game" className="pause-button1" onClick={() => navigate('/page1/pause')}>
                     <span className="pause-icon1">
-                    <div></div>
-                    <div></div>
+                        <div></div>
+                        <div></div>
                     </span>
-                </button>    
+                </button>
                 <div className="progress-wrapper1" aria-label="Level progress bar">
-                        <div className="level-progress-bar1" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+                    <div className="level-progress-bar1" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
                         <div className="level-progress-fill1" style={{ width: progressWidth }}></div>
-                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -234,13 +242,13 @@ export default function LearnPage() {
 
                 <div className="learn-video-side1">
                     <video
-  ref={videoRef}
-  autoPlay
-  width="640"
-  height="480"
-  style={{ transform: "scaleX(-1)" }}
-  className={shakeCamera ? "shake-camera" : ""}
- />
+                        ref={videoRef}
+                        autoPlay
+                        width="640"
+                        height="480"
+                        style={{ transform: "scaleX(-1)" }}
+                        className={shakeCamera ? "shake-camera" : ""}
+                    />
                     <h3 className="finger-count1">
                         Танигдсан хурууны тоо:{" "}
                         <span className="highlighted-number1">
@@ -253,12 +261,12 @@ export default function LearnPage() {
                     </h3>
 
                     <input
-  type="number"
-  placeholder="Хэдэн амьтан байна?"
-  value={userAnswer}
-  onChange={(e) => setUserAnswer(e.target.value)}
-  className={`learn-input ${shake ? "shake" : ""}`}
-/>
+                        type="number"
+                        placeholder="Хэдэн амьтан байна?"
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        className={`learn-input ${shake ? "shake" : ""}`}
+                    />
                     <button onClick={handleCheck} className="check-btn1">
                         Шалгах
                     </button>
