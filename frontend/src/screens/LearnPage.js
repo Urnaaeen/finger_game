@@ -254,7 +254,7 @@ export default function LearnPage() {
 
                     <input
                         type="number"
-                        placeholder="Хэдэн амьтан байна?"
+                        placeholder="Хэдэн амьтан байна вэ?"
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         className={`learn-input ${shake ? "shake" : ""}`}

@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import './css/ThinkPage.css';
 
-
-export default function LearnPage() {
+export default function ThinkPage() {
   const navigate = useNavigate();
   const totalLevels = 5;
 
-  const [randomCount, setRandomCount] = useState(0);
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
+  const [operator, setOperator] = useState('+');
+  const [correctAnswer, setCorrectAnswer] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [result, setResult] = useState("");
   const [level, setLevel] = useState(0);
   const [shakeCamera, setShakeCamera] = useState(false);
-  const [canRetry, setCanRetry] = useState(false);
   const [gameWon, setGameWon] = useState(false);
   const [shake, setShake] = useState(false);
 
@@ -21,32 +22,32 @@ export default function LearnPage() {
   const ws = useRef(null);
   const lastValidFingerCountRef = useRef(null);
   const [fingerCount, setFingerCount] = useState(null);
+  const successAudioRef = useRef(null);
+  const failAudioRef = useRef(null);
+  const thinkAudioRef = useRef(null);
+  const totalAudioRef = useRef(null);
+  const fruitAudioRef = useRef(null);
 
-  const [correctAnswer, setCorrectAnswer] = useState(0);
-  const [num1, setNum1] = useState(0);
-  const [num2, setNum2] = useState(0);
-  const [operator, setOperator] = useState("+");
-  const [isError, setIsError] = useState(false);
+  const playSound = (ref, src) => {
+    if (ref.current) {
+      ref.current.pause();
+      ref.current.currentTime = 0;
+    }
+    ref.current = new Audio(src);
+    ref.current.play().catch(err => console.warn("Audio play error:", err));
+  };
 
   const generateChallenge = () => {
     const operators = ["+", "-"];
     const op = operators[Math.floor(Math.random() * operators.length)];
+    let n1 = Math.floor(Math.random() * 10) + 1;
+    let n2 = Math.floor(Math.random() * 10) + 1;
+    let res = op === "+" ? n1 + n2 : n1 - n2;
 
-    const n1 = Math.floor(Math.random() * 10) + 1;
-    const n2 = Math.floor(Math.random() * 10) + 1;
-
-    let res;
-    switch (op) {
-      case "+":
-        res = n1 + n2;
-        break;
-      case "-":
-        res = n1 - n2;
-        break;
-    }
-
-    if (res < 1 || res > 10) {
-      return generateChallenge();
+    while (res < 1 || res > 10) {
+      n1 = Math.floor(Math.random() * 10) + 1;
+      n2 = Math.floor(Math.random() * 10) + 1;
+      res = op === "+" ? n1 + n2 : n1 - n2;
     }
 
     setNum1(n1);
@@ -55,8 +56,15 @@ export default function LearnPage() {
     setCorrectAnswer(res);
     setUserAnswer("");
     setResult("");
-    setCanRetry(false);
     lastValidFingerCountRef.current = null;
+
+    if (op === "+") {
+      playSound(totalAudioRef, '/sounds/total.mp3');
+    } else {
+      playSound(fruitAudioRef, '/sounds/fruit.mp3');
+    }
+
+    playSound(thinkAudioRef, '/sounds/think.mp3');
   };
 
   useEffect(() => {
@@ -122,7 +130,7 @@ export default function LearnPage() {
   useEffect(() => {
     if (gameWon) {
       confetti({ particleCount: 100, spread: 80 });
-      setTimeout(() => navigate('/page4'), 300);
+      setTimeout(() => navigate('/page4'), 1500);
     }
   }, [gameWon, navigate]);
 
@@ -137,73 +145,41 @@ export default function LearnPage() {
     handleCheckWithValue(value);
   };
 
-
-  function fireConfettiExplosion() {
-    const count = 200;
-    const defaults = {
-      origin: { y: 0.7 },
-      spread: 360,
-      ticks: 200,
-      gravity: 0.9,
-      scalar: 1.2,
-      zIndex: 9999,
-    };
-
-    function shoot(x, y) {
-      confetti({
-        ...defaults,
-        particleCount: count / 5,
-        origin: { x, y }
-      });
+  const handleCheckWithValue = (value) => {
+    if (value === "" || value === null || value === undefined) {
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
+      return;
     }
 
-    shoot(0.1, 0.5);
-    shoot(0.3, 0.3);
-    shoot(0.5, 0.5);
-    shoot(0.7, 0.3);
-    shoot(0.9, 0.5);
-  }
+    const answerToCheck = parseInt(value, 10);
 
+    if (answerToCheck === correctAnswer) {
+      playSound(successAudioRef, '/sounds/success.mp3');
 
-const handleCheckWithValue = (value) => {
-  if (value === "" || value === null || value === undefined) {
-    setShake(true);
-    setTimeout(() => setShake(false), 600);
-    setCanRetry(true);
-    return;
-  }
+      confetti({ particleCount: 100, spread: 80 });
+      const nextLevel = level + 1;
+      setLevel(nextLevel);
+      setResult("🎉 Зөв байна!");
 
-  const answerToCheck = parseInt(value, 10);
-
-  if (answerToCheck === correctAnswer) {   // ← randomCount -> correctAnswer
-    fireConfettiExplosion();
-
-    const nextLevel = level + 1;
-    setLevel(nextLevel);
-    setResult("🎉 Зөв байна!");
-    setCanRetry(false);
-
-    if (nextLevel === totalLevels) {
-      setGameWon(true);
+      if (nextLevel === totalLevels) {
+        setGameWon(true);
+      } else {
+        setTimeout(() => {
+          generateChallenge();
+        }, 1000);
+      }
     } else {
+      playSound(failAudioRef, '/sounds/incorrect.mp3');
+
+      setShake(true);
+      setShakeCamera(true);
       setTimeout(() => {
-        generateChallenge();
-      }, 1000);
+        setShake(false);
+        setShakeCamera(false);
+      }, 600);
     }
-  } else {
-    setShake(true);
-    setShakeCamera(true);
-
-    setTimeout(() => {
-      setShake(false);
-      setShakeCamera(false);
-    }, 600);
-
-    setCanRetry(true);
-  }
-};
-
-
+  };
 
   const progressWidth = `${(level / totalLevels) * 100}%`;
 
@@ -225,26 +201,26 @@ const handleCheckWithValue = (value) => {
 
       <div className="learn-content">
         <section className="expression-row" aria-label="Math expression">
-          <div className="expression-box" aria-live="polite">
-            <div className="fruit-container" aria-hidden="true" role="presentation">
+          <div className="expression-box">
+            <div className="fruit-container">
               {Array.from({ length: num1 }, (_, i) => (
                 <span key={i} role="img" aria-label="apple">🍎</span>
               ))}
             </div>
           </div>
 
-          <div className="operator-box" aria-hidden="true">{operator}</div>
+          <div className="operator-box">{operator}</div>
 
-          <div className="expression-box" aria-live="polite">
-            <div className="fruit-container" aria-hidden="true" role="presentation">
+          <div className="expression-box">
+            <div className="fruit-container">
               {Array.from({ length: num2 }, (_, i) => (
                 <span key={i} role="img" aria-label="apple">🍎</span>
               ))}
             </div>
           </div>
+
+          <div className="operator-box">=</div>
         </section>
-        {/* <section className="operator-box" aria-label="Equals sign">=</section> */}
-        <div className="operator-box" aria-hidden="true">=</div>
 
         <div className="learn-video-side">
           <video
@@ -256,7 +232,7 @@ const handleCheckWithValue = (value) => {
             className={shakeCamera ? "shake-camera" : ""}
           />
           <h3 className="finger-count">
-            Танигдсан хурууны тоо:{" "}
+            Танигдсан хурууны тоо: {" "}
             <span className="highlighted-number">
               {fingerCount !== null
                 ? fingerCount
@@ -268,12 +244,16 @@ const handleCheckWithValue = (value) => {
 
           <input
             type="number"
-            placeholder="Хэдэн амьтан байна?"
+            placeholder="Хэдэн жимс байна вэ?"
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
             className={`learn-input ${shake ? "shake" : ""}`}
           />
-          <button onClick={handleCheck} className="check-btn">
+          <button
+            onClick={handleCheck}
+            className="learn-input check-btn" 
+            style={{ marginTop: "10px" }}
+          >
             Шалгах
           </button>
 

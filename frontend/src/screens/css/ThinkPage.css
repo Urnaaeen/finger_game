@@ -64,7 +64,7 @@ html, body, #root {
   cursor: pointer;
   margin-top: 10px;
   transition: 0.3s ease;
-  width: 100%;
+  width: 320px;
 }
 
 .check-btn:hover {
