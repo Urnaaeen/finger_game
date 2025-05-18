@@ -3,13 +3,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #FDFDFD; /* Шардуу фон */
+    background-color: #f8e5f8; /* Шардуу фон */
   }
   
   .pause-container {
     background-color: #f9d9f9; /* Цайвар ягаан */
-    padding: 80px;
+    padding: 50px;
     border-radius: 30px;
+    border: 1px solid #d1a3d1; /* Ягаан хүрээ */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     width: 800px;
     max-height: 500px;
   }

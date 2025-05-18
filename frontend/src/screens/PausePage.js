@@ -14,7 +14,6 @@ function PauseScreen() {
           <PauseButton icon="▶" text="Үргэлжлүүлэх" onClick={() => navigate(-1)} />
           <PauseButton icon="↻" text="Дахиж эхлүүлэх" onClick={() => navigate('/page1')}/>
           <PauseButton icon="≡" text="Тоглоомууд" onClick={() => navigate('/')} />
-          <PauseButton icon="?" text="Заавар" />
         </div>
       </div>
     </div>
