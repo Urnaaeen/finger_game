@@ -227,8 +227,8 @@ useEffect(() => {
                     </span>
                 </button>
                 <div className="progress-wrapper1" aria-label="Level progress bar">
-                    <div className="level-progress-bar1" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
-                        <div className="level-progress-fill1" style={{ width: progressWidth }}></div>
+                    <div className="level-progress-bar2" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+                        <div className="level-progress-fill2" style={{ width: progressWidth }}></div>
                     </div>
                 </div>
             </div>
@@ -241,13 +241,11 @@ useEffect(() => {
                 </div>
  
                 <div className="learn-video-side1">
-                    <video
+                    <video className="videoThink1"
                         ref={videoRef}
                         autoPlay
                         width="640"
                         height="480"
-                        style={{ transform: "scaleX(-1)" }}
-                        className={shakeCamera ? "shake-camera" : ""}
                     />
                     <h3 className="finger-count1">
                         Танигдсан хурууны тоо:{" "}

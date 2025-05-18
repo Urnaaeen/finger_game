@@ -37,6 +37,7 @@ const GameEndPage = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
 
+<<<<<<< HEAD
  return (
   <div
     style={{
@@ -52,6 +53,21 @@ const GameEndPage = () => {
     }}
   />
 );
+=======
+  return (
+    <div
+      style={{
+        backgroundImage: 'url("/images/congrats3.png")',
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center',
+        width: '100vw',
+        height: '100vh',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    />
+  );
+>>>>>>> 6f363a19a6f3b765dc33221758ec424f50f146ea
 };
 
 export default GameEndPage;
