@@ -1,0 +1,249 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2&display=swap');
+
+* {
+  font-family: 'Baloo 2', cursive;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+.game-container {
+  background: linear-gradient(145deg, #f3e5f5, #e1bee7);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.level-progress-bar {
+  background: #caa2e4;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 50px;
+  width: 100%;
+}
+
+.level-progress-fill {
+  background: #7b3fbf;
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+}
+
+.pulse-text {
+  animation: pulse 1.5s infinite;
+  user-select: none;
+}
+
+@keyframes pulse {
+  0% {opacity: 1;}
+  50% {opacity: 0.6;}
+  100% {opacity: 1;}
+}
+
+.check-result {
+  font-size: 24px;
+  font-weight: bold;
+  color: #6a1b9a;
+  margin-top: 20px;
+  text-shadow: 1px 1px 3px #c158dc;
+  min-height: 30px;
+}
+
+.check-btn {
+  background-color: #ba68c8;
+  color: white;
+  padding: 10px 20px;
+  font-size: 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s ease;
+  width: 100%;
+}
+
+.check-btn:hover {
+  background-color: #ab47bc;
+}
+
+.top-bar {
+  display: flex;
+  width: 80%;
+  max-width: 900px;
+  margin: 0 auto 20px auto;
+  align-items: center;
+  gap: 20px;
+}
+
+.pause-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pause-icon {
+  display: flex;
+  gap: 6px;
+}
+
+.pause-icon > div {
+  width: 4px;
+  height: 24px;
+  background-color: #7b3fbf;
+  border-radius: 2px;
+}
+
+.pause-button span > div {
+  width: 6px;           
+  height: 28px;         
+  background-color: #333;
+  border-radius: 2px;   
+}
+
+.progress-wrapper {
+  flex: 9;
+}
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-10px); }
+  80% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
+
+.error-shake {
+  border: 4px solid red !important;
+  animation: shake 0.8s ease;
+  animation-iteration-count:10;
+  box-shadow: 0 0 10px red;
+  border-radius: 8px;
+}
+
+.game-main {
+  display: flex;
+  width: 80%;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #f9f1ff;
+  padding: 20px;
+  border-radius: 15px;
+  gap: 20px;
+  height: calc(100vh - 160px);
+  align-items: center;
+}
+
+.expression-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  user-select: none;
+}
+
+.expression-box {
+  border: 3px solid #ab47bc;
+  border-radius: 12px;
+  background: white;
+  padding: 15px 20px;
+  min-width: 100px;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(171, 71, 188, 0.3);
+  flex-wrap: wrap;
+}
+
+.operator-box {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #7b3fbf;
+  width: 70px;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.right-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+video {
+  width: 320px;
+  height: 240px;
+  border-radius: 12px;
+  border: 4px solid #ab47bc;
+  object-fit: cover;
+  transform: scaleX(-1);
+  background: black;
+}
+
+input[type="number"] {
+  font-size: 1.5rem;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 3px solid #ab47bc;
+  width: 320px;
+  outline: none;
+  box-shadow: inset 0 0 5px #c158dc;
+}
+
+input[type="number"]:focus {
+  border-color: #7b3fbf;
+  box-shadow: 0 0 10px #7b3fbf;
+}
+
+.fruit-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  max-height: 100%;
+  padding: 4px;
+  font-size: 1.8rem;
+}
+
+.math-operator {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #7b3fbf;
+  user-select: none;
+}
+
+@media (max-width: 780px) {
+  .game-main {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .expression-row, .right-half {
+    width: 100%;
+    justify-content: center;
+  }
+
+  input[type="number"], video {
+    width: 100%;
+    max-width: 320px;
+  }
+}
