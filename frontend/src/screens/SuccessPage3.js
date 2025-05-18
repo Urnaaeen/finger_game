@@ -38,7 +38,7 @@ const GameEndPage = () => {
   }, [navigate]);
 
   return (
-    <divs
+    <div
       style={{
         backgroundImage: 'url("/images/congrats3.png")',
         backgroundSize: 'cover', 

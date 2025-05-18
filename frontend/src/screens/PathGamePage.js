@@ -137,7 +137,7 @@ export default function LearnPage() {
   useEffect(() => {
     if (gameWon) {
       confetti({ particleCount: 100, spread: 80 });
-      setTimeout(() => navigate('/page4'), 1500);
+      setTimeout(() => navigate('/Success3'), 1500);
     }
   }, [gameWon, navigate]);
 
