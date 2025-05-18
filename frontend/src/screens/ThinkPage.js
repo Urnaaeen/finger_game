@@ -1,23 +1,32 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./ThinkPage.css"; 
-import confetti from "canvas-confetti";
+import { useNavigate } from 'react-router-dom';
+import confetti from 'canvas-confetti';
+import './css/ThinkPage.css';
 
-function App() {
+
+export default function LearnPage() {
   const navigate = useNavigate();
   const totalLevels = 5;
+
+  const [randomCount, setRandomCount] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [result, setResult] = useState("");
   const [level, setLevel] = useState(0);
+  const [shakeCamera, setShakeCamera] = useState(false);
   const [canRetry, setCanRetry] = useState(false);
   const [gameWon, setGameWon] = useState(false);
+  const [shake, setShake] = useState(false);
+
+  const videoRef = useRef(null);
+  const ws = useRef(null);
   const lastValidFingerCountRef = useRef(null);
+  const [fingerCount, setFingerCount] = useState(null);
+
   const [correctAnswer, setCorrectAnswer] = useState(0);
   const [num1, setNum1] = useState(0);
   const [num2, setNum2] = useState(0);
   const [operator, setOperator] = useState("+");
   const [isError, setIsError] = useState(false);
-
 
   const generateChallenge = () => {
     const operators = ["+", "-"];
@@ -50,9 +59,9 @@ function App() {
     lastValidFingerCountRef.current = null;
   };
 
-  const videoRef = useRef(null);
-  const ws = useRef(null);
-  const [fingerCount, setFingerCount] = useState(null);
+  useEffect(() => {
+    generateChallenge();
+  }, []);
 
   useEffect(() => {
     const startCamera = async () => {
@@ -68,14 +77,6 @@ function App() {
 
     ws.current = new WebSocket("ws://localhost:8765");
 
-    ws.current.onopen = () => {
-      console.log("✅ WebSocket холбогдлоо");
-    };
-
-    ws.current.onerror = (err) => {
-      console.error("❌ WebSocket алдаа:", err);
-    };
-
     ws.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.fingers !== undefined) {
@@ -86,149 +87,199 @@ function App() {
       }
     };
 
-}, []);
+    const interval = setInterval(() => {
+      if (
+        videoRef.current &&
+        ws.current &&
+        ws.current.readyState === WebSocket.OPEN
+      ) {
+        const canvas = document.createElement("canvas");
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const image = canvas.toDataURL("image/jpeg");
+        ws.current.send(JSON.stringify({ image }));
+      }
+    }, 300);
 
-useEffect(() => {
-if (fingerCount !== null && !canRetry && !gameWon) {
-setUserAnswer(String(fingerCount));
-}
-}, [fingerCount, canRetry, gameWon]);
+    return () => {
+      clearInterval(interval);
+      if (ws.current) ws.current.close();
+    };
+  }, []);
 
-function fireConfettiExplosion() {
-  const count = 200;
-  const defaults = {
-    origin: { y: 0.7 },
-    spread: 360,
-    ticks: 200,
-    gravity: 0.9,
-    scalar: 1.2,
-    zIndex: 9999,
+  useEffect(() => {
+    if (
+      fingerCount === 0 &&
+      lastValidFingerCountRef.current !== null &&
+      !gameWon
+    ) {
+      handleCheckWithValue(lastValidFingerCountRef.current);
+    }
+  }, [fingerCount]);
+
+  useEffect(() => {
+    if (gameWon) {
+      confetti({ particleCount: 100, spread: 80 });
+      setTimeout(() => navigate('/page4'), 300);
+    }
+  }, [gameWon, navigate]);
+
+  const handleCheck = () => {
+    const value =
+      userAnswer !== ""
+        ? userAnswer
+        : fingerCount > 0
+          ? fingerCount
+          : lastValidFingerCountRef.current;
+
+    handleCheckWithValue(value);
   };
 
-  function shoot(x, y) {
-    confetti({
-      ...defaults,
-      particleCount: count / 5,
-      origin: { x, y }
-    });
+
+  function fireConfettiExplosion() {
+    const count = 200;
+    const defaults = {
+      origin: { y: 0.7 },
+      spread: 360,
+      ticks: 200,
+      gravity: 0.9,
+      scalar: 1.2,
+      zIndex: 9999,
+    };
+
+    function shoot(x, y) {
+      confetti({
+        ...defaults,
+        particleCount: count / 5,
+        origin: { x, y }
+      });
+    }
+
+    shoot(0.1, 0.5);
+    shoot(0.3, 0.3);
+    shoot(0.5, 0.5);
+    shoot(0.7, 0.3);
+    shoot(0.9, 0.5);
   }
 
-  shoot(0.1, 0.5);
-  shoot(0.3, 0.3);
-  shoot(0.5, 0.5);
-  shoot(0.7, 0.3);
-  shoot(0.9, 0.5);
-}
 
-const handleCheck = () => {
-  if (gameWon) return;
-
-  if (userAnswer === "") {
-    setIsError(true);
-  setTimeout(() => setIsError(false), 500); 
-  setCanRetry(true);
+const handleCheckWithValue = (value) => {
+  if (value === "" || value === null || value === undefined) {
+    setShake(true);
+    setTimeout(() => setShake(false), 600);
+    setCanRetry(true);
     return;
   }
 
-  const isCorrect = parseInt(userAnswer, 10) === correctAnswer;
+  const answerToCheck = parseInt(value, 10);
 
-  if (isCorrect) {
-    fireConfettiExplosion(); // 🎇 EXTRA explosion
+  if (answerToCheck === correctAnswer) {   // ← randomCount -> correctAnswer
+    fireConfettiExplosion();
 
-    if (level + 1 === totalLevels) {
+    const nextLevel = level + 1;
+    setLevel(nextLevel);
+    setResult("🎉 Зөв байна!");
+    setCanRetry(false);
+
+    if (nextLevel === totalLevels) {
       setGameWon(true);
-      setResult("🎉 Баяр хүргэе! Та хожлоо!");
     } else {
-      setLevel((prev) => prev + 1);
       setTimeout(() => {
         generateChallenge();
-      }, 4000);
+      }, 1000);
     }
-    setCanRetry(false);
   } else {
-  setIsError(true);
-  setTimeout(() => setIsError(false), 500); 
-  setCanRetry(true);
-}
+    setShake(true);
+    setShakeCamera(true);
+
+    setTimeout(() => {
+      setShake(false);
+      setShakeCamera(false);
+    }, 600);
+
+    setCanRetry(true);
+  }
 };
-const progressWidth = ((level + (gameWon ? 1 : 0)) / totalLevels) * 100 + "%";
 
-useEffect(() => {
-generateChallenge();
-}, []);
 
-return (
-<div className="game-container">
-<div className="top-bar">
-  <button aria-label="Pause game" className="pause-button" onClick={() => navigate('/page1/pause')}>
-    <span className="pause-icon">
-      <div></div>
-      <div></div>
-    </span>
-  </button>    
-  <div className="progress-wrapper" aria-label="Level progress bar">
-        <div className="level-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
-          <div className="level-progress-fill" style={{ width: progressWidth }}></div>
+
+  const progressWidth = `${(level / totalLevels) * 100}%`;
+
+  return (
+    <div className="game-container">
+      <div className="top-bar">
+        <button aria-label="Pause game" className="pause-button" onClick={() => navigate('/page1/pause')}>
+          <span className="pause-icon">
+            <div></div>
+            <div></div>
+          </span>
+        </button>
+        <div className="progress-wrapper" aria-label="Level progress bar">
+          <div className="level-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+            <div className="level-progress-fill" style={{ width: progressWidth }}></div>
+          </div>
         </div>
-  </div>
-</div>
-
-  <main className="game-main">
-    <section className="expression-row" aria-label="Math expression">
-  <div className="expression-box" aria-live="polite">
-    <div className="fruit-container" aria-hidden="true" role="presentation">
-      {Array.from({ length: num1 }, (_, i) => (
-        <span key={i} role="img" aria-label="apple">🍎</span>
-      ))}
-    </div>
-  </div>
-
-  <div className="operator-box" aria-hidden="true">{operator}</div>
-
-  <div className="expression-box" aria-live="polite">
-    <div className="fruit-container" aria-hidden="true" role="presentation">
-      {Array.from({ length: num2 }, (_, i) => (
-        <span key={i} role="img" aria-label="apple">🍎</span>
-      ))}
-    </div>
-  </div>
-</section>
-    {/* <section className="operator-box" aria-label="Equals sign">=</section> */}
-  <div className="operator-box" aria-hidden="true">=</div>
-    
-    <section className="right-half expression-row">
-  <video
-  className={`video-box ${isError ? "error-shake" : ""}`}
-  ref={videoRef}
-  autoPlay
-  muted
-  playsInline
-/>
-      <input
-        type="number"
-        aria-label="Your answer input"
-        min="1"
-        max="10"
-        value={userAnswer}
-        onChange={(e) => setUserAnswer(e.target.value)}
-        disabled={gameWon}
-      />
-      <button
-        onClick={handleCheck}
-        disabled={gameWon && !canRetry}
-        className="check-btn"
-        aria-live="assertive"
-      >
-        {gameWon ? "Тоглоом дууссан" : "Шалгах"}
-      </button>
-
-      <div className="check-result" aria-live="polite">
-        {result}
       </div>
-    </section>
-  </main>
-</div>
-);
-}
 
-export default App; 
+      <div className="learn-content">
+        <section className="expression-row" aria-label="Math expression">
+          <div className="expression-box" aria-live="polite">
+            <div className="fruit-container" aria-hidden="true" role="presentation">
+              {Array.from({ length: num1 }, (_, i) => (
+                <span key={i} role="img" aria-label="apple">🍎</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="operator-box" aria-hidden="true">{operator}</div>
+
+          <div className="expression-box" aria-live="polite">
+            <div className="fruit-container" aria-hidden="true" role="presentation">
+              {Array.from({ length: num2 }, (_, i) => (
+                <span key={i} role="img" aria-label="apple">🍎</span>
+              ))}
+            </div>
+          </div>
+        </section>
+        {/* <section className="operator-box" aria-label="Equals sign">=</section> */}
+        <div className="operator-box" aria-hidden="true">=</div>
+
+        <div className="learn-video-side">
+          <video
+            ref={videoRef}
+            autoPlay
+            width="640"
+            height="480"
+            style={{ transform: "scaleX(-1)" }}
+            className={shakeCamera ? "shake-camera" : ""}
+          />
+          <h3 className="finger-count">
+            Танигдсан хурууны тоо:{" "}
+            <span className="highlighted-number">
+              {fingerCount !== null
+                ? fingerCount
+                : lastValidFingerCountRef.current !== null
+                  ? lastValidFingerCountRef.current
+                  : "..."}
+            </span>
+          </h3>
+
+          <input
+            type="number"
+            placeholder="Хэдэн амьтан байна?"
+            value={userAnswer}
+            onChange={(e) => setUserAnswer(e.target.value)}
+            className={`learn-input ${shake ? "shake" : ""}`}
+          />
+          <button onClick={handleCheck} className="check-btn">
+            Шалгах
+          </button>
+
+          <div className="result-text">{result}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
