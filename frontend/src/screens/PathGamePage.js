@@ -183,6 +183,7 @@ export default function LearnPage() {
   const handleCheckWithValue = (value) => {
     const answerToCheck = parseInt(value);
     if (answerToCheck === steps[level]) {
+      fireConfettiExplosion();
       const nextLevel = level + 1;
       setLevel(nextLevel);
       setResult("🎉 Зөв байна!");
@@ -229,8 +230,20 @@ export default function LearnPage() {
         }, 1000);
       }
     } else {
-      setResult("😅 Буруу байна. Дахин оролдоорой!");
-      setCanRetry(true);
+      //  if (failAudioRef.current) {
+      //           failAudioRef.current.pause();
+      //           failAudioRef.current.currentTime = 0;
+      //       }
+      //       failAudioRef.current = new Audio('/sounds/incorrect.mp3');
+      //       failAudioRef.current.play();
+ 
+            setShake(true);
+            setShakeCamera(true);
+            setTimeout(() => {
+                setShake(false);
+                setShakeCamera(false);
+            }, 600);
+            setCanRetry(true);
     }
   };
 
