@@ -40,7 +40,7 @@ const GameEndPage = () => {
   return (
     <div
       style={{
-        backgroundImage: 'url("/images/suuliin-togloom-tugsgul.png")',
+        backgroundImage: 'url("/images/congrats3.png")',
         backgroundSize: 'cover', 
         backgroundPosition: 'center',
         width: '100vw',
