@@ -33,12 +33,12 @@ const GameEndPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate('/');
-    }, 10000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [navigate]);
 
   return (
-    <div
+    <divs
       style={{
         backgroundImage: 'url("/images/congrats3.png")',
         backgroundSize: 'cover', 

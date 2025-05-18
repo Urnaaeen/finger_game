@@ -33,7 +33,7 @@ const GameEndPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate('/');
-    }, 10000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [navigate]);
 
