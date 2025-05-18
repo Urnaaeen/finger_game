@@ -14,7 +14,7 @@ function App() {
   const [gameWon, setGameWon] = useState(false);
   const lastValidFingerCountRef = useRef(null);
   const gridRows = 8;
-  const gridCols = 11;
+  const gridCols = 10;
   const leaf = "🍀";
   const [steps, setSteps] = useState([]);
   const [frogPosition, setFrogPosition] = useState({ x: 0, y: 0 });
@@ -214,8 +214,9 @@ function App() {
   }, [gameWon, navigate]);
 
   return (
-    <>
+    <div style={{ backgroundColor: "#CCFFFE", minHeight: "100vh" }}>
       <style>
+        
         {`
           @keyframes pulse {
             0% { transform: scale(1); }
@@ -245,11 +246,53 @@ function App() {
             100% { transform: translateY(0); }
           }
 
-          @keyframes flagWave {
-            0% { transform: rotate(0deg); }
-            50% { transform: rotate(10deg); }
-            100% { transform: rotate(0deg); }
-          }
+          @keyframes coinSpin {
+  0% {
+    transform: rotateY(0deg);
+    content: url('/images/1.png');
+  }
+  50% {
+    transform: rotateY(90deg);
+    content: url('/images/2.png');
+  }
+  100% {
+    transform: rotateY(180deg);
+    content: url('/images/3.png');
+  }
+}
+
+
+@keyframes coinSpin {
+  0% {
+    transform: rotateY(0deg);
+    content: url('/images/1.png');
+  }
+  50% {
+    transform: rotateY(90deg);
+    content: url('/images/2.png');
+  }
+  100% {
+    transform: rotateY(180deg);
+    content: url('/images/3.png');
+  }
+}
+
+
+
+          .custom-button {
+  background-color: #E2FBCD;
+  padding: 10px 20px;
+  font-size: 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.custom-button:hover {
+  background-color: #5DC26C; /* Hover үед өөр өнгө */
+}
 
 
         `}
@@ -264,10 +307,11 @@ function App() {
         gap: "20px",
         padding: "20px",
         borderRadius: "15px",
+        backgroundColor: "#CCFFFE",
       }}>
         <div
           style={{
-            background: "#f3d4f8",
+            background: "#E2FBCD",
             height: "50px",
             width: "80%",
             margin: "20px auto",
@@ -281,7 +325,7 @@ function App() {
         >
           <div
             style={{
-              background: "#d48df8",
+              background: "#5DC26C",
               height: "100%",
               width: progressWidth,
               transition: "width 0.3s",
@@ -295,7 +339,7 @@ function App() {
               width: '40px',
               height: '40px',
               borderRadius: '50%',
-              backgroundColor: '#eee',
+              backgroundColor: '#E2FBCD',
               border: 'none',
               display: 'flex',
               alignItems: 'center',
@@ -316,8 +360,8 @@ function App() {
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
-        alignItems: "center",
-        width: "80%",
+        alignItems: "start",
+        width: "90%",
         margin: "0 auto",
         gap: "20px",
         backgroundColor: "#CCFFFE",
@@ -325,10 +369,10 @@ function App() {
         borderRadius: "15px",
       }}>
         <div style={{
-          flex: 8,
+          flex: 7,
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
+          alignItems: "start",
           fontSize: "200px",
           fontWeight: "bold",
           color: "#9C27B0",
@@ -383,22 +427,29 @@ function App() {
                       <img
                         src="/images/melhii.png"
                         alt="frog"
-                        width="50"
-                        height="50"
+                        width="70"
+                        height="70"
                         style={{ position: "absolute", top: 0, left: 9 , animation: "idleBounce 1.5s infinite ease-in-out"}}
                       />
                     )}
 
-                    {/* Туг */}
                     {cell === "🚩" && (
-                      <img
-                        src="/images/tug.png"
-                        alt="flag"
-                        width="60"
-                        height="60"
-                        style={{ position: "absolute", bottom:10 , left: 9, animation: "flagWave 2s infinite ease-in-out" }}
-                      />
-                    )}
+  <img
+    src="/images/1.png"
+    alt="coin"
+    width="60"
+    height="60"
+    style={{
+      position: "absolute",
+      bottom: 10,
+      left: 9,
+      animation: "coinSpin 2s infinite linear",
+      transformStyle: "preserve-3d",
+      backfaceVisibility: "hidden",
+    }}
+  />
+)}
+
                   </div>
 
                 ))}
@@ -410,63 +461,55 @@ function App() {
 
         </div>
 
-        <div style={{ flex: 2, textAlign: "center" }}>
-          <video
-            ref={videoRef}
-            autoPlay
-            width="400"
-            height="400"
-            style={{ transform: "scaleX(-1)" }}
-          />
-          <h3 style={{ marginTop: "20px", fontSize: "24px" }}>
-            Танигдсан хурууны тоо:{" "}
-            <span style={{ color: "blue" }}>
-              {fingerCount !== null
-                ? fingerCount
-                : lastValidFingerCountRef.current !== null
-                  ? lastValidFingerCountRef.current
-                  : "..."}
-            </span>
-          </h3>
+                <div style={{ flex: 3, textAlign: "center" }}>
+                    <video
+                        ref={videoRef}
+                        autoPlay
+                        width="640"
+                        height="480"
+                        style={{ transform: "scaleX(-1)" }}
+                    />
 
-          <input
-            type="number"
-            placeholder="Хэдэн амьтан байна?"
-            value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
-            style={{
-              padding: "10px",
-              fontSize: "18px",
-              borderRadius: "10px",
-              border: "1px solid #ccc",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
-          />
+                    <h3 style={{ marginTop: "20px", fontSize: "24px" }}>
+                        Танигдсан хурууны тоо:{" "}
+                        <span style={{ color: "blue" }}>
+                            {fingerCount !== null
+                                ? fingerCount
+                                : lastValidFingerCountRef.current !== null
+                                    ? lastValidFingerCountRef.current
+                                    : "..."}
+                        </span>
+                    </h3>
 
-          <button
-            onClick={handleCheck}
-            style={{
-              marginTop: "10px",
-              padding: "10px 20px",
-              fontSize: "18px",
-              borderRadius: "10px",
-              border: "none",
-              backgroundColor: "#eecbff",
-              cursor: "pointer",
-              width: "100%",
-            }}
-            disabled={gameWon}
-          >
-            Шалгах
-          </button>
+                    <input
+                        type="number"
+                        placeholder="Хэдэн амьтан байна?"
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        style={{
+                            padding: "10px",
+                            fontSize: "18px",
+                            borderRadius: "10px",
+                            border: "1px solid #ccc",
+                            width: "100%",
+                            boxSizing: "border-box",
+                        }}
+                    />
 
-          <div style={{ marginTop: "10px", fontSize: "20px", color: result.includes("Зөв") ? "green" : "red" }}>
-            {result}
-          </div>
-        </div>
+                    <button
+  onClick={handleCheck}
+  className="custom-button"
+  disabled={gameWon}
+>
+  Шалгах
+</button>
+
+                    <div style={{ marginTop: "10px", fontSize: "20px", color: result.includes("Зөв") ? "green" : "red" }}>
+                        {result}
+                    </div>
+                </div>
       </div>
-    </>
+    </div>
   );
 }
 
