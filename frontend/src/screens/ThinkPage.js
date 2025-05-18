@@ -160,25 +160,18 @@ generateChallenge();
 return (
 <div className="game-container">
 <div className="top-bar">
-<button
-aria-label="Pause game"
-className="pause-button"
-                onClick={() => navigate('/page1/pause')}
-
->
-<span className="pause-icon">
-<div></div>
-<div></div>
-</span>
-</button>    <div className="progress-wrapper" aria-label="Level progress bar">
-      <div className="level-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
-        <div
-          className="level-progress-fill"
-          style={{ width: progressWidth }}
-        ></div>
-      </div>
-    </div>
+  <button aria-label="Pause game" className="pause-button" onClick={() => navigate('/page1/pause')}>
+    <span className="pause-icon">
+      <div></div>
+      <div></div>
+    </span>
+  </button>    
+  <div className="progress-wrapper" aria-label="Level progress bar">
+        <div className="level-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+          <div className="level-progress-fill" style={{ width: progressWidth }}></div>
+        </div>
   </div>
+</div>
 
   <main className="game-main">
     <section className="expression-row" aria-label="Math expression">
