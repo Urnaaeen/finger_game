@@ -193,7 +193,7 @@ export default function ThinkPage() {
           </span>
         </button>
         <div className="progress-wrapper" aria-label="Level progress bar">
-          <div className="level-progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+          <div className="level-progress-barThink" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
             <div className="level-progress-fill" style={{ width: progressWidth }}></div>
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function ThinkPage() {
         </section>
 
         <div className="learn-video-side">
-          <video className="video1"
+          <video className="videoThink"
             ref={videoRef}
             autoPlay
             width="400px"
@@ -249,7 +249,7 @@ export default function ThinkPage() {
           />
           <button
             onClick={handleCheck}
-            className="learn-input check-btn" 
+            className="learn-input check-btnThink" 
             style={{ marginTop: "10px" }}
           >
             Шалгах
