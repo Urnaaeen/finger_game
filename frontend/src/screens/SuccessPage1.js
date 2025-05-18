@@ -37,19 +37,23 @@ const GameEndPage = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
 
-  return (
-    <div
-      style={{
-        backgroundImage: 'url("/images/ehnii-togloom-tugsgul.png")',
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center',
-        width: '100vw',
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    />
-  );
+ return (
+  <div
+    style={{
+      backgroundImage: 'url("/images/ehnii-togloom-tugsgul.png")',
+      backgroundSize: 'contain',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: '#F9F1FF', // ← энэ хэсэгт зургийн фоны өнгийг тохируул
+      width: '100vw',
+      height: '100vh',
+      position: 'relative',
+      overflow: 'hidden',
+    }}
+  />
+);
+
+
 };
 
 export default GameEndPage;

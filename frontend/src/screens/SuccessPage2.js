@@ -37,19 +37,22 @@ const GameEndPage = () => {
     return () => clearTimeout(timer);
   }, [navigate]);
 
+  
   return (
-    <div
-      style={{
-        backgroundImage: 'url("/images/congrats2.png")',
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center',
-        width: '100vw',
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    />
-  );
+  <div
+    style={{
+      backgroundImage: 'url("/images/congrats2.png")',
+      backgroundSize: 'contain',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundColor: '#D0F0F7', // ← энэ хэсэгт зургийн фоны өнгийг тохируул
+      width: '100vw',
+      height: '100vh',
+      position: 'relative',
+      overflow: 'hidden',
+    }}
+  />
+);
 };
 
 export default GameEndPage;
